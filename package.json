@@ -1,5 +1,5 @@
 {
-  "name": "mono",
+  "name": "appjoint",
   "private": true,
   "devDependencies": {
     "@changesets/changelog-github": "^0.2.7",
