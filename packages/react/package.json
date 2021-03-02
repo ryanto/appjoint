@@ -23,11 +23,12 @@
     "dist"
   ],
   "peerDependencies": {
-    "react": "^16.0 || ^17.0",
-    "react-dom": "^16.0 || ^17.0"
+    "react": "^16.0.0 || ^17.0.0",
+    "react-dom": "^16.0.0 || ^17.0.0"
   },
   "dependencies": {
     "@appjoint/utils": "^0.0.1",
+    "firebase": "^8.2.9",
     "tslib": "^2.0.0"
   },
   "publishConfig": {
