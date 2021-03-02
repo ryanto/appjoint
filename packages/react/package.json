@@ -1,6 +1,6 @@
 {
   "name": "@appjoint/react",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "React library for @appjoint",
   "author": "Ryan Toronto <ryanto@gmail.com>",
   "repository": {
@@ -27,7 +27,7 @@
     "react-dom": "^16.0.0 || ^17.0.0"
   },
   "dependencies": {
-    "@appjoint/utils": "^0.0.1",
+    "@appjoint/utils": "^0.0.2",
     "firebase": "^8.2.9",
     "tslib": "^2.0.0"
   },
