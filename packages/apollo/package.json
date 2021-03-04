@@ -1,0 +1,38 @@
+{
+  "name": "@appjoint/apollo",
+  "version": "0.0.0",
+  "description": "Apollo hook for @appjoint",
+  "author": "Ryan Toronto <ryanto@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryanto/appjoint",
+    "directory": "packages/apollo"
+  },
+  "scripts": {
+    "start": "tsdx watch --tsconfig tsconfig.build.json --verbose --noClean",
+    "build": "tsdx build --tsconfig tsconfig.build.json",
+    "test": "tsdx test",
+    "lint": "tsdx lint",
+    "prepublish": "npm run build"
+  },
+  "main": "dist/index.js",
+  "module": "dist/apollo.esm.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "README.md",
+    "dist"
+  ],
+  "peerDependencies": {
+    "react": "^16.0.0 || ^17.0.0",
+    "react-dom": "^16.0.0 || ^17.0.0",
+    "@apollo/client": "^3.3.0",
+    "graphql": "^15.5.0"
+  },
+  "dependencies": {
+    "@appjoint/utils": "^0.0.2",
+    "tslib": "^2.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
