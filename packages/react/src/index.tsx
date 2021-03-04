@@ -24,8 +24,14 @@ export const AuthContext = createContext<AuthInfo>({
 
 type User = firebase.User | null;
 
-export const AppJointProvider: React.FC<{ app: string }> = ({
+export type Plugin = {
+  props?: object;
+  provider?: any;
+};
+
+export const AppJointProvider: React.FC<{ app: string; plugins: Plugin[] }> = ({
   app,
+  plugins,
   children,
 }): React.ReactElement => {
   let [isLoading, setIsLoading] = useState<boolean>(true);
@@ -60,10 +66,52 @@ export const AppJointProvider: React.FC<{ app: string }> = ({
     isLoading,
   };
 
+  console.log('PROVIDER', children);
+
   return (
-    <AuthContext.Provider value={providedInfo}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={providedInfo}>
+      <Plugins plugins={plugins}>{children}</Plugins>
+    </AuthContext.Provider>
   );
 };
+
+let Plugins: React.FC<{ plugins: Plugin[] }> = ({
+  plugins,
+  children,
+}): React.ReactElement => {
+  let [First] = plugins;
+
+  console.log({ first: First.props });
+
+  return <First.provider {...First.props}>{children}</First.provider>;
+  // return (
+  //   <PluginProvider plugin={First}>
+  //     <First.provider>{children}</First.provider>
+  //     {/* <Component C={first.provider} {...first.props}>
+  //       {children}
+  //     </Component> */}
+  //     {/* {rest.length > 0 ? (
+  //       <Plugins plugins={rest}>{children}</Plugins>
+  //     ) : (
+  //       <>{children}</>
+  //     )} */}
+  //   </PluginProvider>
+  // );
+};
+
+// let Component = function({ C, children, ...rest }: any) {
+//   console.log('C helper', C);
+//   return <C {...rest}>{children}</C>;
+// };
+
+// let PluginProvider: React.FC<{ plugin: Plugin }> = ({
+//   plugin,
+//   children,
+// }): React.ReactElement => {
+//   return (
+//     <Component C={plugin.provider} {...plugin.props} children={children} />
+//   );
+// };
 
 type SignInOptions =
   | {
