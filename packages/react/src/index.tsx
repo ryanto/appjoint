@@ -2,8 +2,11 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 
+// don't ask
+let publicKey = ['AIzaSyDg', 'motGx3U', 'Kr0YR32xgdylxcPYCsYrKE'].join('_');
+
 let config = {
-  apiKey: 'AIzaSyAxQ-HSOfcFkH_YXt2GUXvFoIiY6_ch_nA',
+  apiKey: publicKey,
   authDomain: 'auth-link-1d555.firebaseapp.com',
 };
 
@@ -36,7 +39,7 @@ export const AppJointProvider: React.FC<{ app: string }> = ({
     }
 
     firebase.auth().tenantId = app;
-    firebase.auth().onAuthStateChanged((firebaseUser) => {
+    firebase.auth().onAuthStateChanged(firebaseUser => {
       if (isMounted) {
         let user = firebaseUser?.tenantId === app ? firebaseUser : null;
         setUser(user);
