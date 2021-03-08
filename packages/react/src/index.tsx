@@ -66,8 +66,6 @@ export const AppJointProvider: React.FC<{ app: string; plugins: Plugin[] }> = ({
     isLoading,
   };
 
-  console.log('PROVIDER', children);
-
   return (
     <AuthContext.Provider value={providedInfo}>
       <Plugins plugins={plugins}>{children}</Plugins>
@@ -79,39 +77,26 @@ let Plugins: React.FC<{ plugins: Plugin[] }> = ({
   plugins,
   children,
 }): React.ReactElement => {
-  let [First] = plugins;
+  let [first, ...rest] = plugins;
 
-  console.log({ first: First.props });
-
-  return <First.provider {...First.props}>{children}</First.provider>;
-  // return (
-  //   <PluginProvider plugin={First}>
-  //     <First.provider>{children}</First.provider>
-  //     {/* <Component C={first.provider} {...first.props}>
-  //       {children}
-  //     </Component> */}
-  //     {/* {rest.length > 0 ? (
-  //       <Plugins plugins={rest}>{children}</Plugins>
-  //     ) : (
-  //       <>{children}</>
-  //     )} */}
-  //   </PluginProvider>
-  // );
+  return (
+    <PluginProvider plugin={first}>
+      {rest.length > 0 ? (
+        <Plugins plugins={rest}>{children}</Plugins>
+      ) : (
+        <>{children}</>
+      )}
+    </PluginProvider>
+  );
 };
 
-// let Component = function({ C, children, ...rest }: any) {
-//   console.log('C helper', C);
-//   return <C {...rest}>{children}</C>;
-// };
-
-// let PluginProvider: React.FC<{ plugin: Plugin }> = ({
-//   plugin,
-//   children,
-// }): React.ReactElement => {
-//   return (
-//     <Component C={plugin.provider} {...plugin.props} children={children} />
-//   );
-// };
+let PluginProvider: React.FC<{ plugin: Plugin }> = ({
+  plugin,
+  children,
+}): React.ReactElement => {
+  let Provider = plugin.provider;
+  return <Provider {...plugin.props} children={children} />;
+};
 
 type SignInOptions =
   | {

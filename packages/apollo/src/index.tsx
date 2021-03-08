@@ -1,14 +1,19 @@
-import { ApolloProvider, ApolloClient, createHttpLink } from '@apollo/client';
+import {
+  ApolloProvider,
+  ApolloClient,
+  createHttpLink,
+  ApolloCache,
+} from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import React, { useEffect, useRef, useState } from 'react';
-import { Plugin, useAuth } from '@appjoint/react';
+import { useAuth, Plugin } from '@appjoint/react';
 
 type UseAppJointApollo = ({
   uri,
   cache,
 }: {
   uri: string;
-  cache: any;
+  cache: ApolloCache<any>;
 }) => Plugin;
 
 export const useAppJointApollo: UseAppJointApollo = ({ uri, cache }) => {
@@ -18,12 +23,14 @@ export const useAppJointApollo: UseAppJointApollo = ({ uri, cache }) => {
   };
 };
 
-export const Provider = function({ uri, cache, children }: any) {
+export const Provider: React.FC<{
+  uri: string;
+  cache: ApolloCache<any>;
+}> = function({ uri, cache, children }): React.ReactElement {
   // we're going to stabilize httpLink, authLink, and the
   // apollo client by hiding them in state. The auth link
   // uses the user ref to generate the jwt token. this allows
   // us to build a client before the user has logged in.
-
   let [httpLink] = useState(() =>
     createHttpLink({
       uri: uri,
@@ -56,8 +63,6 @@ export const Provider = function({ uri, cache, children }: any) {
   useEffect(() => {
     userRef.current = user;
   }, [user]);
-
-  console.log('rendering apollo provider', client);
 
   return <ApolloProvider client={client}>{children}</ApolloProvider>;
 };
