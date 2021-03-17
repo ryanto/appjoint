@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 
@@ -10,19 +16,30 @@ let config = {
   authDomain: 'auth-link-1d555.firebaseapp.com',
 };
 
+type User = firebase.User | null;
+type App = firebase.app.App | undefined;
+
+type AppInfo = {
+  app: string | undefined;
+  instance: App;
+  auth: AuthInfo;
+};
+
 type AuthInfo = {
   user: User;
   isLoading: boolean;
   isAuthenticated: boolean;
 };
 
-export const AuthContext = createContext<AuthInfo>({
-  user: null,
-  isLoading: true,
-  isAuthenticated: false,
+export const AppContext = createContext<AppInfo>({
+  app: undefined,
+  instance: undefined,
+  auth: {
+    user: null,
+    isLoading: true,
+    isAuthenticated: false,
+  },
 });
-
-type User = firebase.User | null;
 
 export type Plugin = {
   props?: object;
@@ -34,24 +51,27 @@ export const AppJointProvider: React.FC<{ app: string; plugins: Plugin[] }> = ({
   plugins,
   children,
 }): React.ReactElement => {
+  let [appInstance, setAppInstance] = useState<App>();
   let [isLoading, setIsLoading] = useState<boolean>(true);
   let [user, setUser] = useState<User>(null);
 
   useEffect(() => {
     let isMounted = true;
 
-    if (firebase.apps.length === 0) {
-      firebase.initializeApp(config);
-    }
+    let _app =
+      firebase.apps.find(fApp => fApp.name === app) ||
+      firebase.initializeApp(config, app);
 
-    firebase.auth().tenantId = app;
-    firebase.auth().onAuthStateChanged(firebaseUser => {
+    firebase.auth(_app).tenantId = app;
+    firebase.auth(_app).onAuthStateChanged(firebaseUser => {
       if (isMounted) {
         let user = firebaseUser?.tenantId === app ? firebaseUser : null;
         setUser(user);
         setIsLoading(false);
       }
     });
+
+    setAppInstance(_app);
 
     return () => {
       isMounted = false;
@@ -60,16 +80,20 @@ export const AppJointProvider: React.FC<{ app: string; plugins: Plugin[] }> = ({
 
   let isAuthenticated = !!user;
 
-  let providedInfo: AuthInfo = {
-    user,
-    isAuthenticated,
-    isLoading,
+  let providedInfo: AppInfo = {
+    app,
+    instance: appInstance,
+    auth: {
+      user,
+      isAuthenticated,
+      isLoading,
+    },
   };
 
   return (
-    <AuthContext.Provider value={providedInfo}>
+    <AppContext.Provider value={providedInfo}>
       <Plugins plugins={plugins}>{children}</Plugins>
-    </AuthContext.Provider>
+    </AppContext.Provider>
   );
 };
 
@@ -117,26 +141,31 @@ type AuthFunctions = {
   signOut: SignOut;
 };
 
-let signIn: SignIn = async (email, password, { remember = false } = {}) => {
-  let persistence = remember
-    ? firebase.auth.Auth.Persistence.LOCAL
-    : firebase.auth.Auth.Persistence.SESSION;
-
-  await firebase.auth().setPersistence(persistence);
-  return await firebase.auth().signInWithEmailAndPassword(email, password);
-};
-
-let signOut: SignOut = () => {
-  return firebase.auth().signOut();
-};
-
 type UseAuth = () => AuthInfo & AuthFunctions;
 
 export const useAuth: UseAuth = () => {
-  let authInfo = useContext(AuthContext);
+  let appInfo = useContext(AppContext);
+
+  let signIn: SignIn = useCallback(
+    async (email, password, { remember = false } = {}) => {
+      let persistence = remember
+        ? firebase.auth.Auth.Persistence.LOCAL
+        : firebase.auth.Auth.Persistence.SESSION;
+
+      await firebase.auth(appInfo.instance).setPersistence(persistence);
+      return await firebase
+        .auth(appInfo.instance)
+        .signInWithEmailAndPassword(email, password);
+    },
+    [appInfo.instance]
+  );
+
+  let signOut: SignOut = useCallback(() => {
+    return firebase.auth(appInfo.instance).signOut();
+  }, [appInfo.instance]);
 
   return {
-    ...authInfo,
+    ...appInfo.auth,
     signIn,
     signOut,
   };
