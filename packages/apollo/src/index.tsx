@@ -33,7 +33,7 @@ export const Provider: React.FC<{
   // us to build a client before the user has logged in.
   let [httpLink] = useState(() =>
     createHttpLink({
-      uri: uri,
+      uri,
     })
   );
 
