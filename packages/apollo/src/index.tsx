@@ -44,6 +44,7 @@ export const Provider: React.FC<{
         headers: {
           ...headers,
           authorization: `Bearer ${token}`,
+          'X-Hasura-Role': 'user',
         },
       };
     })

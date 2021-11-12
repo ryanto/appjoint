@@ -16,13 +16,19 @@ let config = {
   authDomain: 'auth-link-1d555.firebaseapp.com',
 };
 
-type User = firebase.User | null;
+type UserProps = {
+  email: string;
+  getIdToken: () => Promise<string>;
+};
+
+type User = firebase.User | UserProps | null;
 type App = firebase.app.App | undefined;
 
 type AppInfo = {
   app: string | undefined;
   instance: App;
   auth: AuthInfo;
+  test: boolean;
 };
 
 type AuthInfo = {
@@ -34,6 +40,7 @@ type AuthInfo = {
 export const AppContext = createContext<AppInfo>({
   app: undefined,
   instance: undefined,
+  test: false,
   auth: {
     user: null,
     isLoading: true,
@@ -46,11 +53,11 @@ export type Plugin = {
   provider?: any;
 };
 
-export const AppJointProvider: React.FC<{ app: string; plugins: Plugin[] }> = ({
-  app,
-  plugins,
-  children,
-}): React.ReactElement => {
+export const AppJointProvider: React.FC<{
+  app: string;
+  plugins: Plugin[];
+  test?: boolean;
+}> = ({ app, plugins, test = false, children }): React.ReactElement => {
   let [appInstance, setAppInstance] = useState<App>();
   let [isLoading, setIsLoading] = useState<boolean>(true);
   let [user, setUser] = useState<User>(null);
@@ -58,30 +65,36 @@ export const AppJointProvider: React.FC<{ app: string; plugins: Plugin[] }> = ({
   useEffect(() => {
     let isMounted = true;
 
-    let _app =
-      firebase.apps.find(fApp => fApp.name === app) ||
-      firebase.initializeApp(config, app);
+    if (test) {
+      setAppInstance(undefined);
+    } else {
+      let _app =
+        firebase.apps.find(fApp => fApp.name === app) ||
+        firebase.initializeApp(config, app);
 
-    firebase.auth(_app).tenantId = app;
-    firebase.auth(_app).onAuthStateChanged(firebaseUser => {
-      if (isMounted) {
-        let user = firebaseUser?.tenantId === app ? firebaseUser : null;
-        setUser(user);
-        setIsLoading(false);
-      }
-    });
+      firebase.auth(_app).tenantId = app;
+      firebase.auth(_app).onAuthStateChanged(firebaseUser => {
+        if (isMounted) {
+          let user = firebaseUser?.tenantId === app ? firebaseUser : null;
+          setUser(user);
+          setIsLoading(false);
+        }
+      });
 
-    setAppInstance(_app);
+      setAppInstance(_app);
+    }
 
     return () => {
+      // clean up on auth state change handler
       isMounted = false;
     };
-  }, [app]);
+  }, [app, test]);
 
   let isAuthenticated = !!user;
 
   let providedInfo: AppInfo = {
     app,
+    test,
     instance: appInstance,
     auth: {
       user,
@@ -134,7 +147,39 @@ type SignIn = (
   signInOptions?: Partial<SignInOptions>
 ) => Promise<firebase.auth.UserCredential>;
 
+type InstanceSignIn = (
+  instance: App,
+  email: string,
+  password: string,
+  signInOptions?: Partial<SignInOptions>
+) => Promise<firebase.auth.UserCredential>;
+
 type SignOut = () => Promise<void>;
+
+let instanceSignIn: InstanceSignIn = async (
+  instance,
+  email,
+  password,
+  { remember = false } = {}
+) => {
+  let persistence = remember
+    ? firebase.auth.Auth.Persistence.LOCAL
+    : firebase.auth.Auth.Persistence.SESSION;
+
+  await firebase.auth(instance).setPersistence(persistence);
+  return await firebase
+    .auth(instance)
+    .signInWithEmailAndPassword(email, password);
+};
+
+let testSignIn: SignIn = async (email, password, { remember = false } = {}) => {
+  console.log('testing sign in', email, password, remember);
+
+  return {
+    credential: null,
+    user: null,
+  };
+};
 
 type AuthFunctions = {
   signIn: SignIn;
@@ -144,28 +189,32 @@ type AuthFunctions = {
 type UseAuth = () => AuthInfo & AuthFunctions;
 
 export const useAuth: UseAuth = () => {
-  let appInfo = useContext(AppContext);
+  let { instance, auth, test } = useContext(AppContext);
 
   let signIn: SignIn = useCallback(
-    async (email, password, { remember = false } = {}) => {
-      let persistence = remember
-        ? firebase.auth.Auth.Persistence.LOCAL
-        : firebase.auth.Auth.Persistence.SESSION;
-
-      await firebase.auth(appInfo.instance).setPersistence(persistence);
-      return await firebase
-        .auth(appInfo.instance)
-        .signInWithEmailAndPassword(email, password);
+    (...args) => {
+      return test ? testSignIn(...args) : instanceSignIn(instance, ...args);
     },
-    [appInfo.instance]
+    [instance, test]
   );
 
   let signOut: SignOut = useCallback(() => {
-    return firebase.auth(appInfo.instance).signOut();
-  }, [appInfo.instance]);
+    return firebase.auth(instance).signOut();
+  }, [instance]);
+
+  let testUser = {
+    email: 'ryanto@gmail.com',
+    getIdToken: () => Promise.resolve('test-user-id-token'),
+  };
+
+  let testAuth = {
+    user: testUser,
+    isLoading: false,
+    isAuthenticated: true,
+  };
 
   return {
-    ...appInfo.auth,
+    ...(test ? testAuth : auth),
     signIn,
     signOut,
   };
