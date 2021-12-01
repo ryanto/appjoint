@@ -16,25 +16,29 @@ let config = {
   authDomain: 'auth-link-1d555.firebaseapp.com',
 };
 
-type UserProps = {
+type TestUser = {
   email: string;
   getIdToken: () => Promise<string>;
 };
-
-type User = firebase.User | UserProps | null;
+type User = firebase.User | TestUser | null;
 type App = firebase.app.App | undefined;
+
+type AuthInfo = {
+  user: User;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+};
+
+type TestHelpers = {
+  signInTestUser: (email: string, password: string) => Promise<TestUser>;
+};
 
 type AppInfo = {
   app: string | undefined;
   instance: App;
   auth: AuthInfo;
   test: boolean;
-};
-
-type AuthInfo = {
-  user: User;
-  isLoading: boolean;
-  isAuthenticated: boolean;
+  testHelpers?: TestHelpers;
 };
 
 export const AppContext = createContext<AppInfo>({
@@ -53,11 +57,64 @@ export type Plugin = {
   provider?: any;
 };
 
+let isTest = typeof window !== 'undefined' && !!(window as any).Cypress;
+
+let bridgedTestCurrentUser =
+  typeof window !== 'undefined' && (window as any).APPJOINT_GET_CURRENT_USER
+    ? (window as any).APPJOINT_GET_CURRENT_USER()
+    : null;
+
+type TestCurrentUser = {
+  id?: string;
+  email: string;
+  role?: string;
+};
+
+type TestUserAccount = {
+  id?: string;
+  email: string;
+  password: string;
+  role?: string;
+};
+
+let testUser = (user: TestUserAccount | TestCurrentUser): TestUser => {
+  let token = {
+    id: user.id,
+    role: user.role,
+  };
+
+  return {
+    email: user.email,
+    getIdToken: () => Promise.resolve(`echo:${JSON.stringify(token)}`),
+  };
+};
+
+let testCurrentUser = bridgedTestCurrentUser
+  ? testUser(bridgedTestCurrentUser)
+  : null;
+
+let bridgedUserAccounts: [TestUserAccount] =
+  typeof window !== 'undefined' && (window as any).APPJOINT_USER_ACCOUNTS
+    ? (window as any).APPJOINT_USER_ACCOUNTS
+    : [];
+
+let findBridgedUserAccount = (
+  email: string,
+  password: string
+): TestUser | null => {
+  let userAccount = bridgedUserAccounts.find(
+    bridgedAccount =>
+      bridgedAccount.email === email && bridgedAccount.password === password
+  );
+
+  return userAccount ? testUser(userAccount) : null;
+};
+
 export const AppJointProvider: React.FC<{
   app: string;
   plugins: Plugin[];
   test?: boolean;
-}> = ({ app, plugins, test = false, children }): React.ReactElement => {
+}> = ({ app, plugins, test = isTest, children }): React.ReactElement => {
   let [appInstance, setAppInstance] = useState<App>();
   let [isLoading, setIsLoading] = useState<boolean>(true);
   let [user, setUser] = useState<User>(null);
@@ -67,6 +124,10 @@ export const AppJointProvider: React.FC<{
 
     if (test) {
       setAppInstance(undefined);
+      setTimeout(() => {
+        setUser(testCurrentUser);
+        setIsLoading(false);
+      }, 0);
     } else {
       let _app =
         firebase.apps.find(fApp => fApp.name === app) ||
@@ -103,11 +164,35 @@ export const AppJointProvider: React.FC<{
     },
   };
 
+  if (test) {
+    providedInfo.testHelpers = {
+      signInTestUser: async (
+        email: string,
+        password: string
+      ): Promise<TestUser> => {
+        let user = findBridgedUserAccount(email, password);
+        if (user) {
+          setUser(user);
+          return Promise.resolve(user);
+        } else {
+          throw new Error(`Could not find test user account for ${email}.`);
+        }
+      },
+    };
+  }
+
   return (
     <AppContext.Provider value={providedInfo}>
       <Plugins plugins={plugins}>{children}</Plugins>
     </AppContext.Provider>
   );
+};
+
+type UseApp = () => AppInfo;
+
+export const useApp: UseApp = () => {
+  let appInfo = useContext(AppContext);
+  return appInfo;
 };
 
 let Plugins: React.FC<{ plugins: Plugin[] }> = ({
@@ -145,7 +230,7 @@ type SignIn = (
   email: string,
   password: string,
   signInOptions?: Partial<SignInOptions>
-) => Promise<firebase.auth.UserCredential>;
+) => Promise<firebase.auth.UserCredential | TestUser>;
 
 type InstanceSignIn = (
   instance: App,
@@ -172,13 +257,20 @@ let instanceSignIn: InstanceSignIn = async (
     .signInWithEmailAndPassword(email, password);
 };
 
-let testSignIn: SignIn = async (email, password, { remember = false } = {}) => {
-  console.log('testing sign in', email, password, remember);
+type TestSignIn = (
+  testHelpers: TestHelpers,
+  email: string,
+  password: string,
+  signInOptions?: Partial<SignInOptions>
+) => Promise<TestUser>;
 
-  return {
-    credential: null,
-    user: null,
-  };
+let testSignIn: TestSignIn = async (
+  testHelpers,
+  email,
+  password,
+  _options = {}
+) => {
+  return testHelpers.signInTestUser(email, password);
 };
 
 type AuthFunctions = {
@@ -189,32 +281,25 @@ type AuthFunctions = {
 type UseAuth = () => AuthInfo & AuthFunctions;
 
 export const useAuth: UseAuth = () => {
-  let { instance, auth, test } = useContext(AppContext);
+  let app = useApp();
+  let { instance, auth, test, testHelpers } = app;
 
   let signIn: SignIn = useCallback(
     (...args) => {
-      return test ? testSignIn(...args) : instanceSignIn(instance, ...args);
+      return test && testHelpers
+        ? testSignIn(testHelpers, ...args)
+        : instanceSignIn(instance, ...args);
     },
-    [instance, test]
+    [testHelpers, instance, test]
   );
 
   let signOut: SignOut = useCallback(() => {
+    // need to add test support here
     return firebase.auth(instance).signOut();
   }, [instance]);
 
-  let testUser = {
-    email: 'ryanto@gmail.com',
-    getIdToken: () => Promise.resolve('test-user-id-token'),
-  };
-
-  let testAuth = {
-    user: testUser,
-    isLoading: false,
-    isAuthenticated: true,
-  };
-
   return {
-    ...(test ? testAuth : auth),
+    ...auth,
     signIn,
     signOut,
   };

@@ -24,10 +24,10 @@
   ],
   "peerDependencies": {
     "@apollo/client": "^3.3.0",
+    "@appjoint/react": "*",
     "graphql": "^15.5.0",
     "react": "^16.0.0 || ^17.0.0",
-    "react-dom": "^16.0.0 || ^17.0.0",
-    "@appjoint/react": "*"
+    "react-dom": "^16.0.0 || ^17.0.0"
   },
   "dependencies": {
     "@appjoint/utils": "^0.0.2",
@@ -38,7 +38,8 @@
   },
   "devDependencies": {
     "@apollo/client": "^3.3.11",
+    "@appjoint/react": "*",
     "graphql": "^15.5.0",
-    "@appjoint/react": "*"
+    "tsdx": "^0.14.1"
   }
 }
