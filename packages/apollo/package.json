@@ -1,6 +1,6 @@
 {
   "name": "@appjoint/apollo",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "Apollo hook for @appjoint",
   "author": "Ryan Toronto <ryanto@gmail.com>",
   "repository": {
