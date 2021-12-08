@@ -1,5 +1,11 @@
 # @appjoint/react
 
+## 0.2.0
+
+### Minor Changes
+
+- [`651534b`](https://github.com/ryanto/appjoint/commit/651534bbbd3a1d6e8ab95d19fcf45d8c4f8b04c5) [#5](https://github.com/ryanto/appjoint/pull/5) Thanks [@ryanto](https://github.com/ryanto)! - Add test support APIs
+
 ## 0.1.2
 
 ### Patch Changes
