@@ -1,11 +1,11 @@
 name: E2E Test
 on: [pull_request]
-# disabled for now
-if: ${{ false }}
 jobs:
   cypress:
     name: Cypress
     runs-on: ubuntu-20.04
+    # disabled for now
+    if: ${{ false }}
     steps:
       - uses: actions/checkout@v2
       - name: Cypress run
