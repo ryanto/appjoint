@@ -5,20 +5,18 @@ export type Plugin = {
   provider?: any;
 };
 
-export const Plugins: React.FC<{ plugins: Plugin[] }> = ({
-  plugins,
+export const Plugins: React.FC<{ plugins?: Plugin[] }> = ({
+  plugins = [],
   children,
 }): React.ReactElement => {
   let [first, ...rest] = plugins;
 
-  return (
+  return first ? (
     <PluginProvider plugin={first}>
-      {rest.length > 0 ? (
-        <Plugins plugins={rest}>{children}</Plugins>
-      ) : (
-        <>{children}</>
-      )}
+      <Plugins plugins={rest}>{children}</Plugins>
     </PluginProvider>
+  ) : (
+    <>{children}</>
   );
 };
 

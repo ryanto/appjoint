@@ -1,0 +1,1 @@
+export { setupAppJoint } from './commands';
