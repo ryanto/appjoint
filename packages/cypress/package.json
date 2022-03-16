@@ -1,12 +1,12 @@
 {
-  "name": "@appjoint/react",
-  "version": "0.2.0",
-  "description": "React library for @appjoint",
+  "name": "@appjoint/cypress",
+  "version": "0.0.1",
+  "description": "Cypress test helpers",
   "author": "Ryan Toronto <ryanto@gmail.com>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ryanto/appjoint",
-    "directory": "packages/react"
+    "directory": "packages/cypress"
   },
   "scripts": {
     "start": "tsdx watch --tsconfig tsconfig.build.json --verbose --noClean",
@@ -16,20 +16,18 @@
     "prepublish": "npm run build"
   },
   "main": "dist/index.js",
-  "module": "dist/react.esm.js",
+  "module": "dist/utils.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "README.md",
     "dist"
   ],
-  "peerDependencies": {
-    "react": "^16.0.0 || ^17.0.0",
-    "react-dom": "^16.0.0 || ^17.0.0"
-  },
   "dependencies": {
-    "@appjoint/utils": "^0.0.2",
-    "firebase": "^8.2.9",
+    "@appjoint/react": "*",
     "tslib": "^2.3.1"
+  },
+  "peerDependencies": {
+    "cypress": "^7.0.0 || ^8.0.0 || ^9.0.0"
   },
   "publishConfig": {
     "access": "public"

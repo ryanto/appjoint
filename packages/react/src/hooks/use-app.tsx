@@ -68,7 +68,9 @@ export const AppJointProvider: React.FC<{
             setUser(user);
             return Promise.resolve(user);
           } else {
-            throw new Error(`Could not find test user account for ${email}.`);
+            throw new Error(
+              `Could not find test user account for ${email} with password ${password}.`
+            );
           }
         },
       };

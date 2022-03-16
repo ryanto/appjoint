@@ -10,13 +10,13 @@ export type TestApp = {
 export const isTest =
   typeof window !== 'undefined' && !!(window as any).Cypress;
 
-type TestCurrentUserAccount = {
+export type TestCurrentUserAccount = {
   id?: string;
   email: string;
   role?: string;
 };
 
-type TestUserAccount = {
+export type TestUserAccount = {
   id?: string;
   email: string;
   password: string;
