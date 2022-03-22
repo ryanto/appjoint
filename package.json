@@ -19,6 +19,7 @@
   "scripts": {
     "lerna": "lerna",
     "start": "lerna run start --stream --parallel --ignore test-app-*",
+    "test": "lerna run test --ignore test-app-*",
     "lint": "lerna run lint -- --fix",
     "build": "lerna run build --ignore test-app-*",
     "prepublish": "lerna run prepublish",

@@ -1,35 +1,42 @@
 {
-  "name": "@appjoint/cypress",
-  "version": "0.0.2",
-  "description": "Cypress test helpers",
+  "name": "@appjoint/server",
+  "version": "0.0.1",
+  "description": "AppJoint on the server",
   "author": "Ryan Toronto <ryanto@gmail.com>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ryanto/appjoint",
-    "directory": "packages/cypress"
+    "directory": "packages/server"
   },
   "scripts": {
     "start": "tsdx watch --tsconfig tsconfig.build.json --verbose --noClean",
     "build": "tsdx build --tsconfig tsconfig.build.json",
-    "test": ":",
+    "test": "tsdx test",
     "lint": "tsdx lint",
     "prepublish": "npm run build"
   },
   "main": "dist/index.js",
-  "module": "dist/cypress.esm.js",
+  "module": "dist/server.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "README.md",
     "dist"
   ],
   "dependencies": {
-    "@appjoint/react": "*",
+    "cookie": "^0.4.2",
+    "graphql": "^16.3.0",
+    "graphql-request": "^4.1.0",
+    "node-fetch": "^2.x",
     "tslib": "^2.3.1"
   },
-  "peerDependencies": {
-    "cypress": "^7.0.0 || ^8.0.0 || ^9.0.0"
-  },
+  "peerDependencies": {},
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "@jest/globals": "^27.5.1",
+    "@types/cookie": "^0.4.1",
+    "@types/node-fetch": "^2.6.1",
+    "nock": "^13.2.4"
   }
 }
