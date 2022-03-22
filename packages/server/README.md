@@ -1,5 +1,5 @@
-# @appjoint/cypress
+# @appjoint/server
 
-[![Stable release](https://img.shields.io/npm/v/@appjoint/cypress.svg)](https://npm.im/@appjoint/cypress)
+[![Stable release](https://img.shields.io/npm/v/@appjoint/server.svg)](https://npm.im/@appjoint/server)
 
-Cypress test helpers for @appjoint apps.
+@appjoint on the server.
