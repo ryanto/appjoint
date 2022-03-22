@@ -1,0 +1,97 @@
+const { gql } = require('graphql-request');
+let nock = require('nock');
+const { Request } = require('node-fetch');
+let { app } = require('../src/index');
+
+let appJoint;
+beforeEach(() => {
+  appJoint = app('t');
+});
+
+describe('query', () => {
+  it('should run a query', async () => {
+    nock('https://appjoint.vercel.app')
+      .get('/api/tenants/t/info')
+      .reply(200, {
+        tenantId: 't',
+        graphql: {
+          uri: 'https://t.appjoint.graphql/v1/graphql',
+        },
+      });
+
+    let QUERY = gql`
+      query {
+        posts {
+          id
+        }
+      }
+    `;
+
+    nock('https://t.appjoint.graphql')
+      .post('/v1/graphql', {
+        query: QUERY,
+      })
+      .reply(200, {
+        data: {
+          posts: [{ id: 1 }, { id: 2 }],
+        },
+      });
+
+    let response = await appJoint.query(QUERY);
+
+    expect(response.posts).toHaveLength(2);
+    expect(response.posts.map(post => post.id)).toEqual([1, 2]);
+  });
+
+  it('should query as a user', async () => {
+    nock('https://appjoint.vercel.app')
+      .post('/api/tenants/t/verify-signature', { signature: 'xxx' })
+      .reply(200, {
+        uid: '123',
+      });
+
+    nock('https://appjoint.vercel.app')
+      .get('/api/tenants/t/info')
+      .reply(200, {
+        tenantId: 't',
+        graphql: {
+          uri: 'https://t.appjoint.graphql/v1/graphql',
+        },
+      });
+
+    let QUERY = gql`
+      query {
+        posts {
+          id
+        }
+      }
+    `;
+
+    nock('https://t.appjoint.graphql')
+      .matchHeader('authorization', 'Signature xxx')
+      .post('/v1/graphql', {
+        query: QUERY,
+      })
+      .reply(200, {
+        data: {
+          posts: [{ id: 1 }, { id: 2 }],
+        },
+      });
+
+    let headers = new Headers({
+      cookie: appJoint.sessionCookie({ __signature: 'xxx' }),
+    });
+
+    let request = new Request('', { headers });
+
+    let user = await appJoint.getUserFromRequest(request);
+    let response = await appJoint.as(user).query(QUERY);
+
+    expect(response.posts).toHaveLength(2);
+    expect(response.posts.map(post => post.id)).toEqual([1, 2]);
+  });
+});
+
+afterAll(() => {
+  nock.restore();
+});

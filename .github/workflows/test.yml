@@ -1,0 +1,24 @@
+name: Tests (Jest)
+on: [pull_request]
+jobs:
+  cypress:
+    name: Cypress
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build libraries
+        run: yarn build
+
+      - name: Test
+        run: yarn test

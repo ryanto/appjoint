@@ -1,0 +1,36 @@
+html,
+body {
+  padding: 20px;
+  margin: 0 auto;
+  max-width: 700px;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: darkblue;
+}
+
+label {
+  margin: 16px 0 3px 0;
+  display: block;
+}
+
+button[type='submit'] {
+  margin-top: 16px;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  margin-bottom: 24px;
+}
