@@ -45,7 +45,6 @@ export default function App() {
         <div className="header">
           {user && (
             <>
-              <div>Hi, {user.email}!</div>
               <Form action="/logout" method="post">
                 <button>Logout</button>
               </Form>
