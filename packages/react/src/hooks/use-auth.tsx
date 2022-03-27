@@ -10,11 +10,11 @@ type SignInOptions =
     }
   | undefined;
 
-type SignIn = (
+export type SignIn<T> = (
   email: string,
   password: string,
   signInOptions?: Partial<SignInOptions>
-) => Promise<firebase.auth.UserCredential | TestUser>;
+) => Promise<T>;
 
 type FirebaseApp = firebase.app.App | undefined;
 
@@ -60,7 +60,7 @@ let testSignIn: TestSignIn = async (
 type SignOut = () => Promise<void>;
 
 type AuthFunctions = {
-  signIn: SignIn;
+  signIn: SignIn<firebase.auth.UserCredential | TestUser>;
   signOut: SignOut;
 };
 
@@ -70,7 +70,7 @@ export const useAuth: UseAuth = () => {
   let app = useApp();
   let { instance, auth, test } = app;
 
-  let signIn: SignIn = useCallback(
+  let signIn: SignIn<firebase.auth.UserCredential | TestUser> = useCallback(
     (...args) => {
       return test
         ? testSignIn(instance as TestApp, ...args)

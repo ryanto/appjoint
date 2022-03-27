@@ -21,6 +21,7 @@ let config = {
 export type AppAuth = {
   user: User;
   isLoading: boolean;
+  isInitializing: boolean;
   isAuthenticated: boolean;
 };
 
@@ -41,6 +42,7 @@ const AppContext = createContext<AppInfo>({
   auth: {
     user: null,
     isLoading: true,
+    isInitializing: true,
     isAuthenticated: false,
   },
 });
@@ -52,10 +54,12 @@ export const AppJointProvider: React.FC<{
 }> = ({ app, plugins, test = isTest, children }): React.ReactElement => {
   let [appInstance, setAppInstance] = useState<App>();
   let [isLoading, setIsLoading] = useState<boolean>(true);
+  let [isInitializing, setIsInitializing] = useState<boolean>(true);
   let [user, setUser] = useState<User>(null);
 
   useEffect(() => {
     let isMounted = true;
+    setIsInitializing(true);
 
     if (test) {
       let _app = {
@@ -78,6 +82,7 @@ export const AppJointProvider: React.FC<{
       setTimeout(() => {
         setUser(testCurrentUser);
         setIsLoading(false);
+        setIsInitializing(false);
       }, 0);
     } else {
       let _app =
@@ -90,6 +95,7 @@ export const AppJointProvider: React.FC<{
           let user = firebaseUser?.tenantId === app ? firebaseUser : null;
           setUser(user);
           setIsLoading(false);
+          setIsInitializing(false);
         }
       });
 
@@ -112,6 +118,7 @@ export const AppJointProvider: React.FC<{
       user,
       isAuthenticated,
       isLoading,
+      isInitializing,
     },
   };
 
