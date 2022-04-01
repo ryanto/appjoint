@@ -7,6 +7,7 @@ import {
   testCurrentUser,
   TestApp,
   TestUser,
+  addBridgedUserAccount,
 } from '../test-support';
 import { Plugin, Plugins } from '../plugin-support';
 
@@ -76,6 +77,14 @@ export const AppJointProvider: React.FC<{
               `Could not find test user account for ${email} with password ${password}.`
             );
           }
+        },
+        createTestUser: async (
+          email: string,
+          password: string
+        ): Promise<TestUser> => {
+          let user = addBridgedUserAccount(email, password);
+          setUser(user);
+          return Promise.resolve(user);
         },
       };
       setAppInstance(_app);

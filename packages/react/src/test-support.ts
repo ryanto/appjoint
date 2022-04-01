@@ -5,6 +5,7 @@ export type TestUser = {
 
 export type TestApp = {
   signInTestUser: (email: string, password: string) => Promise<TestUser>;
+  createTestUser: (email: string, password: string) => Promise<TestUser>;
 };
 
 export const isTest =
@@ -61,4 +62,13 @@ export const findBridgedUserAccount = (
   );
 
   return account ? userFromAccount(account) : null;
+};
+
+export const addBridgedUserAccount = (
+  email: string,
+  password: string
+): TestUser => {
+  let accounts = (window as any).APPJOINT_USER_ACCOUNTS;
+  (window as any).APPJOINT_USER_ACCOUNTS = [{ email, password }, ...accounts];
+  return userFromAccount({ email, password });
 };

@@ -24,7 +24,7 @@ export const Login = function() {
   };
 
   return (
-    <div className="flex flex-col justify-center min-h-screen py-12 sm:bg-gray-50 px-12 sm:px-6 lg:px-8 relative z-10">
+    <div className="relative z-10 flex flex-col justify-center min-h-screen px-12 py-12 sm:bg-gray-50 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-3xl font-extrabold text-center text-gray-900">
           Sign in to your account
@@ -35,7 +35,7 @@ export const Login = function() {
         <div className="px-6 py-8 bg-white sm:shadow sm:rounded-lg sm:px-10">
           {error && (
             <div className="px-3 py-4 mb-8 text-xs text-white bg-red-500 rounded-md shadow">
-              <h3 className="text-sm font-semibold mb-2">Could not sign In</h3>
+              <h3 className="mb-2 text-sm font-semibold">Could not sign In</h3>
               There was an error signing into your account: {error.message}
             </div>
           )}
@@ -87,8 +87,8 @@ export const Login = function() {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
-                  id="remember_me"
-                  name="remember_me"
+                  id="remember"
+                  name="remember"
                   type="checkbox"
                   checked={remember}
                   onChange={e => setRemember(e.target.checked)}
