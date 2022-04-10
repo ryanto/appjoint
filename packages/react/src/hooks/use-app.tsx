@@ -2,12 +2,10 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import firebase from 'firebase/app';
 import { User } from '../index';
 import {
-  findBridgedUserAccount,
   isTest,
   testCurrentUser,
   TestApp,
-  TestUser,
-  addBridgedUserAccount,
+  createTestApp,
 } from '../test-support';
 import { Plugin, Plugins } from '../plugin-support';
 
@@ -56,45 +54,22 @@ export const AppJointProvider: React.FC<{
   let [appInstance, setAppInstance] = useState<App>();
   let [isLoading, setIsLoading] = useState<boolean>(true);
   let [isInitializing, setIsInitializing] = useState<boolean>(true);
-  let [user, setUser] = useState<User>(null);
+  let [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     let isMounted = true;
+    let _app;
     setIsInitializing(true);
 
     if (test) {
-      let _app = {
-        signInTestUser: async (
-          email: string,
-          password: string
-        ): Promise<TestUser> => {
-          let user = findBridgedUserAccount(email, password);
-          if (user) {
-            setUser(user);
-            return Promise.resolve(user);
-          } else {
-            throw new Error(
-              `Could not find test user account for ${email} with password ${password}.`
-            );
-          }
-        },
-        createTestUser: async (
-          email: string,
-          password: string
-        ): Promise<TestUser> => {
-          let user = addBridgedUserAccount(email, password);
-          setUser(user);
-          return Promise.resolve(user);
-        },
-      };
-      setAppInstance(_app);
+      _app = createTestApp(setUser);
       setTimeout(() => {
         setUser(testCurrentUser);
         setIsLoading(false);
         setIsInitializing(false);
       }, 0);
     } else {
-      let _app =
+      _app =
         firebase.apps.find(fApp => fApp.name === app) ||
         firebase.initializeApp(config, app);
 
@@ -107,9 +82,9 @@ export const AppJointProvider: React.FC<{
           setIsInitializing(false);
         }
       });
-
-      setAppInstance(_app);
     }
+
+    setAppInstance(_app);
 
     return () => {
       // clean up on auth state change handler

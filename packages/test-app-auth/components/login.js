@@ -1,27 +1,17 @@
-import { useState } from 'react';
-import { useAuth } from '@appjoint/react';
+import { useLoginForm } from '@appjoint/react';
 
 export const Login = function() {
-  let { signIn } = useAuth();
-
-  let [email, setEmail] = useState('');
-  let [password, setPassword] = useState('');
-  let [remember, setRemember] = useState(true);
-
-  let handleSignIn = async e => {
-    e.preventDefault();
-    await signIn(email, password, { remember: remember });
-  };
+  let { formProps, error } = useLoginForm();
 
   return (
-    <form onSubmit={handleSignIn} data-test="login-form">
+    <form {...formProps} data-test="login-form">
+      {error && <div data-test="error">Error: {error.message}</div>}
       <div>
         <label htmlFor="email">Email address</label>
         <input
           id="email"
           name="email"
           data-test="email"
-          onChange={e => setEmail(e.target.value)}
           type="email"
           autoComplete="email"
           required
@@ -33,7 +23,6 @@ export const Login = function() {
           id="password"
           name="password"
           data-test="password"
-          onChange={e => setPassword(e.target.value)}
           type="password"
           autoComplete="current-password"
           required

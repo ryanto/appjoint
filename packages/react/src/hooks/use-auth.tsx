@@ -127,7 +127,7 @@ export const useAuth: UseAuth = () => {
   let signOut: SignOut = useCallback(() => {
     // need to add test support here
     return test
-      ? Promise.reject('Not yet implemented.')
+      ? (instance as TestApp).signOutTestUser()
       : firebase.auth(instance as FirebaseApp).signOut();
   }, [instance, test]);
 

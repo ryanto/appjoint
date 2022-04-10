@@ -1,3 +1,6 @@
+import { SetStateAction } from 'react';
+import { User } from '.';
+
 export type TestUser = {
   email: string;
   getIdToken: () => Promise<string>;
@@ -6,6 +9,48 @@ export type TestUser = {
 export type TestApp = {
   signInTestUser: (email: string, password: string) => Promise<TestUser>;
   createTestUser: (email: string, password: string) => Promise<TestUser>;
+  signOutTestUser: () => Promise<void>;
+};
+
+export let createTestApp = (
+  setUser: React.Dispatch<SetStateAction<User>>
+): TestApp => {
+  return {
+    signInTestUser: async (
+      email: string,
+      password: string
+    ): Promise<TestUser> => {
+      let user = findBridgedUserAccount(email, password);
+      if (user) {
+        setUser(user);
+        return Promise.resolve(user);
+      } else {
+        throw new Error(
+          `Could not find test user account for ${email} with password ${password}.`
+        );
+      }
+    },
+    createTestUser: async (
+      email: string,
+      password: string
+    ): Promise<TestUser> => {
+      let user = findBridgedUserAccount(email);
+
+      if (!user) {
+        let user = addBridgedUserAccount(email, password);
+        setUser(user);
+        return Promise.resolve(user);
+      } else {
+        throw new Error(
+          `Could not create test user account for ${email} because an account with that email already exists.`
+        );
+      }
+    },
+    signOutTestUser: async (): Promise<void> => {
+      setUser(null);
+      return Promise.resolve();
+    },
+  };
 };
 
 export const isTest =
@@ -54,11 +99,12 @@ let bridgedUserAccounts: [TestUserAccount] =
 
 export const findBridgedUserAccount = (
   email: string,
-  password: string
+  password?: string
 ): TestUser | null => {
   let account = bridgedUserAccounts.find(
     bridgedAccount =>
-      bridgedAccount.email === email && bridgedAccount.password === password
+      bridgedAccount.email === email &&
+      (!password || bridgedAccount.password === password)
   );
 
   return account ? userFromAccount(account) : null;

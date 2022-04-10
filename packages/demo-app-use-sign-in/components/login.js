@@ -1,27 +1,7 @@
-import { useState } from "react";
-import { useAuth } from "@appjoint/react";
+import { useLoginForm } from "@appjoint/react";
 
 export const Login = function() {
-  let [email, setEmail] = useState("");
-  let [password, setPassword] = useState("");
-  let [remember, setRemember] = useState(false);
-  let [isLoading, setIsLoading] = useState(false);
-  let [error, setError] = useState();
-
-  let { signIn } = useAuth();
-
-  let handleSignIn = async event => {
-    event.preventDefault();
-    setIsLoading(true);
-
-    try {
-      await signIn(email, password, { remember });
-    } catch (e) {
-      setError(e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  let { isSubmitting, error, formProps } = useLoginForm();
 
   return (
     <div className="relative z-10 flex flex-col justify-center min-h-screen px-12 py-12 sm:bg-gray-50 sm:px-6 lg:px-8">
@@ -39,7 +19,7 @@ export const Login = function() {
               There was an error signing into your account: {error.message}
             </div>
           )}
-          <form className="space-y-6" onSubmit={handleSignIn}>
+          <form className="space-y-6" {...formProps}>
             <div>
               <label
                 htmlFor="email"
@@ -112,9 +92,9 @@ export const Login = function() {
             <div>
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isSubmitting}
                 className={`flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                  isLoading ? "bg-opacity-60" : ""
+                  isSubmitting ? "bg-opacity-60" : ""
                 }`}
               >
                 Sign in
