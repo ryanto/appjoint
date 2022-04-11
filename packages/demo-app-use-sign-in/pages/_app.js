@@ -1,5 +1,6 @@
 import { AppJoint, useAuth } from "@appjoint/react";
 import { Login } from "../components/login";
+import { useRouter } from "next/router";
 import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }) {
@@ -16,13 +17,24 @@ function MyApp({ Component, pageProps }) {
 
 function InnerApp({ children }) {
   let { isInitializing, isAuthenticated } = useAuth();
+  let { asPath } = useRouter();
 
-  return isInitializing ? <></> : isAuthenticated ? children : <Login />;
+  let publicRoutes = ["/sign-up"];
+
+  let isPublicPage = publicRoutes.includes(asPath);
+
+  return isInitializing ? (
+    <></>
+  ) : isAuthenticated || isPublicPage ? (
+    children
+  ) : (
+    <Login />
+  );
 }
 
 function Layout({ children }) {
   return (
-    <div className=" lex flex-col min-h-screen">
+    <div className="flex-col min-h-screen lex">
       <div className="grow">{children}</div>
     </div>
   );

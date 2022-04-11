@@ -1,13 +1,23 @@
-import { useLoginForm } from "@appjoint/react";
+import { useCreateAccountForm, useAuth } from "@appjoint/react";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
-export const Login = function() {
-  let { isSubmitting, error, formProps } = useLoginForm();
+export default function SignUpPage() {
+  let { isSubmitting, error, formProps } = useCreateAccountForm();
+  let { isAuthenticated } = useAuth();
+  let router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, router]);
 
   return (
     <div className="relative z-10 flex flex-col justify-center min-h-screen px-12 py-12 sm:bg-gray-50 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-3xl font-extrabold text-center text-gray-900">
-          Sign in to your account
+          Create an account
         </h2>
       </div>
 
@@ -15,8 +25,8 @@ export const Login = function() {
         <div className="px-6 py-8 bg-white sm:shadow sm:rounded-lg sm:px-10">
           {error && (
             <div className="px-3 py-4 mb-8 text-xs text-white bg-red-500 rounded-md shadow">
-              <h3 className="mb-2 text-sm font-semibold">Could not sign In</h3>
-              There was an error signing into your account: {error.message}
+              <h3 className="mb-2 text-sm font-semibold">Could not sign-up</h3>
+              There was an error creating your account: {error.message}
             </div>
           )}
           <form className="space-y-6" {...formProps}>
@@ -60,29 +70,6 @@ export const Login = function() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember"
-                  name="remember"
-                  type="checkbox"
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label
-                  htmlFor="remember_me"
-                  className="block ml-2 text-sm text-gray-900"
-                >
-                  Remember me
-                </label>
-              </div>
-
-              <div className="text-sm">
-                <a className="font-medium text-blue-600 hover:text-blue-500">
-                  Forgot your password?
-                </a>
-              </div>
-            </div>
-
             <div>
               <button
                 type="submit"
@@ -91,7 +78,7 @@ export const Login = function() {
                   isSubmitting ? "bg-opacity-60" : ""
                 }`}
               >
-                Sign in
+                Create account
               </button>
             </div>
           </form>
@@ -99,4 +86,4 @@ export const Login = function() {
       </div>
     </div>
   );
-};
+}
