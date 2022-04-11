@@ -2,11 +2,10 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import firebase from 'firebase/app';
 import { User } from '../index';
 import {
-  findBridgedUserAccount,
   isTest,
   testCurrentUser,
   TestApp,
-  TestUser,
+  createTestApp,
 } from '../test-support';
 import { Plugin, Plugins } from '../plugin-support';
 
@@ -21,6 +20,7 @@ let config = {
 export type AppAuth = {
   user: User;
   isLoading: boolean;
+  isInitializing: boolean;
   isAuthenticated: boolean;
 };
 
@@ -41,6 +41,7 @@ const AppContext = createContext<AppInfo>({
   auth: {
     user: null,
     isLoading: true,
+    isInitializing: true,
     isAuthenticated: false,
   },
 });
@@ -52,35 +53,23 @@ export const AppJointProvider: React.FC<{
 }> = ({ app, plugins, test = isTest, children }): React.ReactElement => {
   let [appInstance, setAppInstance] = useState<App>();
   let [isLoading, setIsLoading] = useState<boolean>(true);
-  let [user, setUser] = useState<User>(null);
+  let [isInitializing, setIsInitializing] = useState<boolean>(true);
+  let [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     let isMounted = true;
+    let _app;
+    setIsInitializing(true);
 
     if (test) {
-      let _app = {
-        signInTestUser: async (
-          email: string,
-          password: string
-        ): Promise<TestUser> => {
-          let user = findBridgedUserAccount(email, password);
-          if (user) {
-            setUser(user);
-            return Promise.resolve(user);
-          } else {
-            throw new Error(
-              `Could not find test user account for ${email} with password ${password}.`
-            );
-          }
-        },
-      };
-      setAppInstance(_app);
+      _app = createTestApp(setUser);
       setTimeout(() => {
         setUser(testCurrentUser);
         setIsLoading(false);
+        setIsInitializing(false);
       }, 0);
     } else {
-      let _app =
+      _app =
         firebase.apps.find(fApp => fApp.name === app) ||
         firebase.initializeApp(config, app);
 
@@ -90,11 +79,12 @@ export const AppJointProvider: React.FC<{
           let user = firebaseUser?.tenantId === app ? firebaseUser : null;
           setUser(user);
           setIsLoading(false);
+          setIsInitializing(false);
         }
       });
-
-      setAppInstance(_app);
     }
+
+    setAppInstance(_app);
 
     return () => {
       // clean up on auth state change handler
@@ -112,6 +102,7 @@ export const AppJointProvider: React.FC<{
       user,
       isAuthenticated,
       isLoading,
+      isInitializing,
     },
   };
 

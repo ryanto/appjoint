@@ -1,6 +1,7 @@
 import '../styles/globals.css';
 import { AppJoint, useAuth } from '@appjoint/react';
 import { Login } from '../components/login';
+import { useRouter } from 'next/router';
 
 export default function App({ Component, pageProps }) {
   return (
@@ -13,12 +14,16 @@ export default function App({ Component, pageProps }) {
 }
 
 let AuthenticatedApp = ({ children }) => {
-  let { isLoading, isAuthenticated } = useAuth();
+  let { isInitializing, isAuthenticated } = useAuth();
+  let router = useRouter();
 
-  return isLoading ? (
+  let publicUrls = ['/sign-in', '/create-account', '/create-account-form'];
+  let isOnPublicPage = publicUrls.includes(router.asPath);
+
+  return isInitializing ? (
     // Display a splash screen until we know if the user is logged in
     <SplashScreen />
-  ) : isAuthenticated ? (
+  ) : isAuthenticated || isOnPublicPage ? (
     // Render the children
     <>{children}</>
   ) : (

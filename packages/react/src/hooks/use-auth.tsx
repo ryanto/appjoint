@@ -10,11 +10,13 @@ type SignInOptions =
     }
   | undefined;
 
-type SignIn = (
+export type SignIn<T> = (
   email: string,
   password: string,
   signInOptions?: Partial<SignInOptions>
-) => Promise<firebase.auth.UserCredential | TestUser>;
+) => Promise<T>;
+
+export type CreateAccount<T> = (email: string, password: string) => Promise<T>;
 
 type FirebaseApp = firebase.app.App | undefined;
 
@@ -41,6 +43,22 @@ let firebaseSignIn: FirebaseSignIn = async (
     .signInWithEmailAndPassword(email, password);
 };
 
+type FirebaseCreateAccount = (
+  instance: FirebaseApp,
+  email: string,
+  password: string
+) => Promise<firebase.auth.UserCredential>;
+
+let firebaseCreateAccount: FirebaseCreateAccount = async (
+  instance,
+  email,
+  password
+) => {
+  return await firebase
+    .auth(instance)
+    .createUserWithEmailAndPassword(email, password);
+};
+
 type TestSignIn = (
   instance: TestApp,
   email: string,
@@ -57,10 +75,26 @@ let testSignIn: TestSignIn = async (
   return instance.signInTestUser(email, password);
 };
 
+type TestCreateAccount = (
+  instance: TestApp,
+  email: string,
+  password: string
+) => Promise<TestUser>;
+
+let testCreateAccount: TestCreateAccount = async (
+  instance,
+  email,
+  password,
+  _options = {}
+) => {
+  return instance.createTestUser(email, password);
+};
+
 type SignOut = () => Promise<void>;
 
 type AuthFunctions = {
-  signIn: SignIn;
+  createAccount: CreateAccount<firebase.auth.UserCredential | TestUser>;
+  signIn: SignIn<firebase.auth.UserCredential | TestUser>;
   signOut: SignOut;
 };
 
@@ -70,7 +104,18 @@ export const useAuth: UseAuth = () => {
   let app = useApp();
   let { instance, auth, test } = app;
 
-  let signIn: SignIn = useCallback(
+  let createAccount: CreateAccount<
+    firebase.auth.UserCredential | TestUser
+  > = useCallback(
+    (...args) => {
+      return test
+        ? testCreateAccount(instance as TestApp, ...args)
+        : firebaseCreateAccount(instance as FirebaseApp, ...args);
+    },
+    [instance, test]
+  );
+
+  let signIn: SignIn<firebase.auth.UserCredential | TestUser> = useCallback(
     (...args) => {
       return test
         ? testSignIn(instance as TestApp, ...args)
@@ -82,12 +127,13 @@ export const useAuth: UseAuth = () => {
   let signOut: SignOut = useCallback(() => {
     // need to add test support here
     return test
-      ? Promise.reject('Not yet implemented.')
+      ? (instance as TestApp).signOutTestUser()
       : firebase.auth(instance as FirebaseApp).signOut();
   }, [instance, test]);
 
   return {
     ...auth,
+    createAccount,
     signIn,
     signOut,
   };
