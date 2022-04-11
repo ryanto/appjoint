@@ -1,5 +1,13 @@
 # @appjoint/react
 
+## 0.3.0
+
+### Minor Changes
+
+- [`bf8bc59`](https://github.com/ryanto/appjoint/commit/bf8bc59b6826d74bc004ee09a3fa1b2278670a53) [#12](https://github.com/ryanto/appjoint/pull/12) Thanks [@ryanto](https://github.com/ryanto)! - # Hooks for auth
+
+  Added new hooks useLoginForm and useCreateAccountForm
+
 ## 0.2.1
 
 ### Patch Changes
