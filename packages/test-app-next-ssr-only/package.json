@@ -1,5 +1,5 @@
 {
-  "name": "test-app-next-ssr",
+  "name": "test-app-next-ssr-only",
   "version": "0.1.0",
   "private": true,
   "scripts": {
