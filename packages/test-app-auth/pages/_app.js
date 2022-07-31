@@ -17,7 +17,12 @@ let AuthenticatedApp = ({ children }) => {
   let { isInitializing, isAuthenticated } = useAuth();
   let router = useRouter();
 
-  let publicUrls = ['/sign-in', '/create-account', '/create-account-form'];
+  let publicUrls = [
+    '/sign-in',
+    '/create-account',
+    '/create-account-form',
+    '/auth-token',
+  ];
   let isOnPublicPage = publicUrls.includes(router.asPath);
 
   return isInitializing ? (
