@@ -1,5 +1,14 @@
 # @appjoint/apollo
 
+## 2.0.0
+
+### Patch Changes
+
+- [`6198410`](https://github.com/ryanto/appjoint/commit/6198410347cc010c8365deba32b04d036512f9be) [#14](https://github.com/ryanto/appjoint/pull/14) Thanks [@ryanto](https://github.com/ryanto)! - Cleanup release. Add some helper functions to auth and fix peer deps.
+
+- Updated dependencies [[`6198410`](https://github.com/ryanto/appjoint/commit/6198410347cc010c8365deba32b04d036512f9be)]:
+  - @appjoint/react@0.4.0
+
 ## 1.0.0
 
 ### Patch Changes
