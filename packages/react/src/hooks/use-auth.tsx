@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { TestUser, TestApp } from '../test-support';
-import { useApp, AppAuth } from './use-app';
+import { useApp } from './use-app';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 
@@ -59,6 +59,26 @@ let firebaseCreateAccount: FirebaseCreateAccount = async (
     .createUserWithEmailAndPassword(email, password);
 };
 
+let _setupSessionCookie = async (
+  user: firebase.User | TestUser,
+  endpoint: string
+) => {
+  let token = await user.getIdToken();
+  let response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      token,
+    }),
+  });
+
+  if (response.status !== 200) {
+    throw 'Could not setup a session cookie';
+  }
+};
+
 type TestSignIn = (
   instance: TestApp,
   email: string,
@@ -92,15 +112,7 @@ let testCreateAccount: TestCreateAccount = async (
 
 type SignOut = () => Promise<void>;
 
-type AuthFunctions = {
-  createAccount: CreateAccount<firebase.auth.UserCredential | TestUser>;
-  signIn: SignIn<firebase.auth.UserCredential | TestUser>;
-  signOut: SignOut;
-};
-
-type UseAuth = () => AppAuth & AuthFunctions;
-
-export const useAuth: UseAuth = () => {
+export const useAuth = () => {
   let app = useApp();
   let { instance, auth, test } = app;
 
@@ -125,16 +137,27 @@ export const useAuth: UseAuth = () => {
   );
 
   let signOut: SignOut = useCallback(() => {
-    // need to add test support here
     return test
       ? (instance as TestApp).signOutTestUser()
       : firebase.auth(instance as FirebaseApp).signOut();
   }, [instance, test]);
+
+  let setupSessionCookie = useCallback(
+    endpoint => {
+      return auth.user
+        ? _setupSessionCookie(auth.user, endpoint)
+        : Promise.reject(
+            'Cannot setup a session cookie when the user is not logged in.'
+          );
+    },
+    [auth.user]
+  );
 
   return {
     ...auth,
     createAccount,
     signIn,
     signOut,
+    setupSessionCookie,
   };
 };

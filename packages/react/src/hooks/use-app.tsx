@@ -54,7 +54,12 @@ export const AppJointProvider: React.FC<{
   let [appInstance, setAppInstance] = useState<App>();
   let [isLoading, setIsLoading] = useState<boolean>(true);
   let [isInitializing, setIsInitializing] = useState<boolean>(true);
-  let [user, setUser] = useState<User | null>(null);
+  let [user, _setUser] = useState<User | null>(null);
+
+  let setUser = (user: User | null) => {
+    _setUser(user);
+    store.user = user;
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -113,9 +118,15 @@ export const AppJointProvider: React.FC<{
   );
 };
 
-type UseApp = () => AppInfo;
-
-export const useApp: UseApp = () => {
+export const useApp = (): AppInfo => {
   let appInfo = useContext(AppContext);
   return appInfo;
+};
+
+type Store = {
+  user: User | null;
+};
+
+export const store: Store = {
+  user: null,
 };

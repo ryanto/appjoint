@@ -1,6 +1,3 @@
-import { SetStateAction } from 'react';
-import { User } from '.';
-
 export type TestUser = {
   email: string;
   getIdToken: () => Promise<string>;
@@ -12,9 +9,9 @@ export type TestApp = {
   signOutTestUser: () => Promise<void>;
 };
 
-export let createTestApp = (
-  setUser: React.Dispatch<SetStateAction<User>>
-): TestApp => {
+type UserSetter = (user: TestUser | null) => void;
+
+export let createTestApp = (setUser: UserSetter): TestApp => {
   return {
     signInTestUser: async (
       email: string,

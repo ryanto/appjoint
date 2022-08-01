@@ -17,3 +17,4 @@ export { useAuth } from './hooks/use-auth';
 export { useLoginForm } from './hooks/use-login-form';
 export { useCreateAccountForm } from './hooks/use-create-account-form';
 export { useApp, AppJointProvider as AppJoint } from './hooks/use-app';
+export { getAuthorizationHeader } from './helpers';

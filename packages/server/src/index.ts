@@ -157,7 +157,7 @@ let getUserFromRequest = (tenantId: string, req: RequestLike) =>
     req.headers.get ? req.headers.get('cookie') : req.headers.cookie
   );
 
-let getTentantInfo = async (tenantId: string) => {
+let getTenantInfo = async (tenantId: string) => {
   if (!appInfo.get(tenantId)) {
     let response = await fetch(
       `${appJointServer}/api/tenants/${tenantId}/info`
@@ -176,7 +176,7 @@ let execHasura = async (
   variables: Record<string, any>,
   headers: Record<string, string> = {}
 ) => {
-  let info = await getTentantInfo(tenantId);
+  let info = await getTenantInfo(tenantId);
 
   return await request({
     url: info.graphql.uri,
