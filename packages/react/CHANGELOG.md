@@ -1,5 +1,11 @@
 # @appjoint/react
 
+## 0.4.1
+
+### Patch Changes
+
+- [`a69499d`](https://github.com/ryanto/appjoint/commit/a69499dce67ed241d5260444868b395c250638a4) [#16](https://github.com/ryanto/appjoint/pull/16) Thanks [@ryanto](https://github.com/ryanto)! - Provider no longer requires plugins
+
 ## 0.4.0
 
 ### Minor Changes
