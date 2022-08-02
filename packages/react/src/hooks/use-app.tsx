@@ -48,7 +48,7 @@ const AppContext = createContext<AppInfo>({
 
 export const AppJointProvider: React.FC<{
   app: string;
-  plugins: Plugin[];
+  plugins?: Plugin[];
   test?: boolean;
 }> = ({ app, plugins, test = isTest, children }): React.ReactElement => {
   let [appInstance, setAppInstance] = useState<App>();
