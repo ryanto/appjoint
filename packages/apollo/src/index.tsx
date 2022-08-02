@@ -5,7 +5,7 @@ import {
   ApolloCache,
 } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
-import React, { useRef, useState } from 'react';
+import React, { ReactNode, useRef, useState } from 'react';
 import { useAuth, useApp, Plugin } from '@appjoint/react';
 
 type UseAppJointApollo = ({
@@ -23,10 +23,13 @@ export const useAppJointApollo: UseAppJointApollo = ({ uri, cache }) => {
   };
 };
 
-export const Provider: React.FC<{
+type ProviderProps = {
   uri: string;
   cache: ApolloCache<any>;
-}> = function({ uri, cache, children }): React.ReactElement {
+  children: ReactNode;
+};
+
+export const Provider = function({ uri, cache, children }: ProviderProps) {
   let { user } = useAuth();
   let userRef = useRef(user);
 

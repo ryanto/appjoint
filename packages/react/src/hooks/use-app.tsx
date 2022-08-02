@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import firebase from 'firebase/app';
 import { User } from '../index';
 import {
@@ -46,11 +52,19 @@ const AppContext = createContext<AppInfo>({
   },
 });
 
-export const AppJointProvider: React.FC<{
+type ProviderProps = {
   app: string;
   plugins?: Plugin[];
   test?: boolean;
-}> = ({ app, plugins, test = isTest, children }): React.ReactElement => {
+  children: ReactNode;
+};
+
+export const AppJointProvider = ({
+  app,
+  plugins,
+  test = isTest,
+  children,
+}: ProviderProps) => {
   let [appInstance, setAppInstance] = useState<App>();
   let [isLoading, setIsLoading] = useState<boolean>(true);
   let [isInitializing, setIsInitializing] = useState<boolean>(true);
