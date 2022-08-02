@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 export type Plugin = {
   props?: object;
   provider?: any;
 };
 
-export const Plugins: React.FC<{ plugins?: Plugin[] }> = ({
-  plugins = [],
-  children,
-}): React.ReactElement => {
+type PluginProps = {
+  plugins?: Plugin[];
+  children: ReactNode;
+};
+
+export const Plugins = ({ plugins = [], children }: PluginProps) => {
   let [first, ...rest] = plugins;
 
   return first ? (
@@ -20,10 +22,12 @@ export const Plugins: React.FC<{ plugins?: Plugin[] }> = ({
   );
 };
 
-let PluginProvider: React.FC<{ plugin: Plugin }> = ({
-  plugin,
-  children,
-}): React.ReactElement => {
+type ProviderPluginProps = {
+  plugin: Plugin;
+  children: ReactNode;
+};
+
+let PluginProvider = ({ plugin, children }: ProviderPluginProps) => {
   let Provider = plugin.provider;
   return <Provider {...plugin.props} children={children} />;
 };
