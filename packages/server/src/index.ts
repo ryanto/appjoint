@@ -34,13 +34,24 @@ export let app = (app: string, _options = {}) => {
     query,
     mutate: query,
 
-    // admin:
-    // headers['x-hasura-admin-secret'] =
-    //   process.env.APPJOINT_HASURA_GRAPHQL_ADMIN_SECRET;
-
     as: (user: User) => {
       let headers = {
         authorization: `Signature ${user.__signature}`,
+      };
+
+      let query = (query: string, variables: Record<string, any>) =>
+        execHasura(app, query, variables, headers);
+
+      return {
+        query,
+        mutate: query,
+      };
+    },
+
+    admin: (secret?: string) => {
+      let headers = {
+        'x-hasura-admin-secret':
+          secret ?? `${process.env.APPJOINT_HASURA_GRAPHQL_ADMIN_SECRET}`,
       };
 
       let query = (query: string, variables: Record<string, any>) =>

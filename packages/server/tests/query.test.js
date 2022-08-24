@@ -90,6 +90,41 @@ describe('query', () => {
     expect(response.posts).toHaveLength(2);
     expect(response.posts.map(post => post.id)).toEqual([1, 2]);
   });
+
+  it.only('should query as an admin', async () => {
+    nock('https://appjoint.vercel.app')
+      .get('/api/tenants/t/info')
+      .reply(200, {
+        tenantId: 't',
+        graphql: {
+          uri: 'https://t.appjoint.graphql/v1/graphql',
+        },
+      });
+
+    let QUERY = gql`
+      query {
+        posts {
+          id
+        }
+      }
+    `;
+
+    nock('https://t.appjoint.graphql')
+      .matchHeader('x-hasura-admin-secret', 'ADMIN_SECRET')
+      .post('/v1/graphql', {
+        query: QUERY,
+      })
+      .reply(200, {
+        data: {
+          posts: [{ id: 1 }, { id: 2 }, { id: 3 }],
+        },
+      });
+
+    let response = await appJoint.admin('ADMIN_SECRET').query(QUERY);
+
+    expect(response.posts).toHaveLength(3);
+    expect(response.posts.map(post => post.id)).toEqual([1, 2, 3]);
+  });
 });
 
 afterAll(() => {
