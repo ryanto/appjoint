@@ -91,7 +91,7 @@ describe('query', () => {
     expect(response.posts.map(post => post.id)).toEqual([1, 2]);
   });
 
-  it.only('should query as an admin', async () => {
+  it('should query as an admin', async () => {
     nock('https://appjoint.vercel.app')
       .get('/api/tenants/t/info')
       .reply(200, {

@@ -21,9 +21,8 @@ export let app = (app: string, _options = {}) => {
     execHasura(app, query, variables);
 
   return {
-    // getUserFromCookie: (cookie: string) => getUserFromCookie(app, cookie),
     getUserFromRequest: (req: RequestLike) => getUserFromRequest(app, req),
-
+    getUserFromToken: (token: string) => getUserFromToken(app, token),
     // getSessionCookieFromToken: (token: string) =>
     //   getSessionCookieFromToken(app, token),
 
@@ -65,28 +64,33 @@ export let app = (app: string, _options = {}) => {
   };
 };
 
-// rename to getUserFromToken
-// let getSessionCookieFromToken = async (tenantId: string, token: string) => {
+let getUserFromToken = async (tenantId: string, token: string) => {
+  let response = await fetch(
+    `${appJointServer}/api/tenants/${tenantId}/user-from-token`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token,
+      }),
+    }
+  );
 
-//   // this needs to request something like user-from-token
-//   let response = await fetch(
-//     `${appJointServer}/api/tenants/${tenantId}/get-signature`,
-//     {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({
-//         token,
-//       }),
-//     }
-//   );
+  let { uid, signature } = await response.json();
+  let user = { uid };
 
-//   let { signature } = await response.json();
-//   let user = { __signature: signature };
+  if (uid) {
+    Object.defineProperty(user, '__signature', {
+      value: signature,
+      enumerable: false,
+      writable: false,
+    });
+  }
 
-//   return sessionCookie(tenantId, user);
-// };
+  return user.uid ? user : null;
+};
 
 let login = async (
   tenantId: string,
@@ -162,11 +166,17 @@ let getUserFromCookie = async (
   return user.uid ? user : null;
 };
 
-let getUserFromRequest = (tenantId: string, req: RequestLike) =>
-  getUserFromCookie(
-    tenantId,
-    req.headers.get ? req.headers.get('cookie') : req.headers.cookie
-  );
+let getUserFromRequest = (tenantId: string, req: RequestLike) => {
+  if (req.headers.get('authorization')) {
+    let token = req.headers.get('authorization')?.split(' ')[1];
+    return getUserFromToken(tenantId, token);
+  } else {
+    return getUserFromCookie(
+      tenantId,
+      req.headers.get ? req.headers.get('cookie') : req.headers.cookie
+    );
+  }
+};
 
 let getTenantInfo = async (tenantId: string) => {
   if (!appInfo.get(tenantId)) {
