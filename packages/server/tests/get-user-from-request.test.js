@@ -1,5 +1,5 @@
 let nock = require('nock');
-let { Request } = require('node-fetch');
+let { Request } = require('cross-fetch');
 let { app } = require('../src/index');
 
 let appJoint;

@@ -1,7 +1,9 @@
 const { gql } = require('graphql-request');
+const gqlTag = require('graphql-tag');
 let nock = require('nock');
-const { Request } = require('node-fetch');
+const { Request } = require('cross-fetch');
 let { app } = require('../src/index');
+const { print } = require('graphql');
 
 let appJoint;
 beforeEach(() => {
@@ -124,6 +126,40 @@ describe('query', () => {
 
     expect(response.posts).toHaveLength(3);
     expect(response.posts.map(post => post.id)).toEqual([1, 2, 3]);
+  });
+
+  it('should be able to use graphql-tag', async () => {
+    nock('https://appjoint.vercel.app')
+      .get('/api/tenants/t/info')
+      .reply(200, {
+        tenantId: 't',
+        graphql: {
+          uri: 'https://t.appjoint.graphql/v1/graphql',
+        },
+      });
+
+    let QUERY = gqlTag`
+      query {
+        posts {
+          id
+        }
+      }
+    `;
+
+    nock('https://t.appjoint.graphql')
+      .post('/v1/graphql', {
+        query: print(QUERY),
+      })
+      .reply(200, {
+        data: {
+          posts: [{ id: 1 }, { id: 2 }],
+        },
+      });
+
+    let response = await appJoint.query(QUERY);
+
+    expect(response.posts).toHaveLength(2);
+    expect(response.posts.map(post => post.id)).toEqual([1, 2]);
   });
 });
 
