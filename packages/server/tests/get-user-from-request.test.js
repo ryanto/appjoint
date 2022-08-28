@@ -60,7 +60,7 @@ describe('getUserFromRequest', () => {
       expect(user).toBeNull();
     });
 
-    it('invalid cookie', async () => {
+    it('invalid cookie (no such user)', async () => {
       nock('https://appjoint.vercel.app')
         .post('/api/tenants/t/verify-signature', { signature: 'xxx' })
         .reply(200, {});

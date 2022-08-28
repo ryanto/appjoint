@@ -8,7 +8,8 @@
       "@appjoint/utils": ["packages/utils/src"],
       "@appjoint/react": ["packages/react/src"],
       "@appjoint/apollo": ["packages/apollo/src"],
-      "$test/*": ["test/*"]
+      "@appjoint/server": ["packages/server/src"],
+      "@appjoint/cypress": ["packages/cypress/src"]
     }
   }
 }
