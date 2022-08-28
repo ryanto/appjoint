@@ -29,7 +29,6 @@
     "dist"
   ],
   "dependencies": {
-    "@rollup/plugin-typescript": "^8.4.0",
     "cookie": "^0.4.2",
     "cross-fetch": "^3.1.5",
     "graphql": "^16.6.0",
@@ -41,6 +40,7 @@
     "access": "public"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^8.4.0",
     "@jest/globals": "^29.0.1",
     "@types/cookie": "^0.5.1",
     "graphql-tag": "^2.12.6",
