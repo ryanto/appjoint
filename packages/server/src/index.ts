@@ -168,7 +168,10 @@ let getUserFromCookie = async (
 
 let getUserFromRequest = (tenantId: string, req: RequestLike) => {
   if (req.headers.get('authorization')) {
-    let token = req.headers.get('authorization')?.split(' ')[1];
+    let authHeader = req.headers.get
+      ? req.headers.get('authorization')
+      : req.headers.authorization;
+    let token = authHeader?.split(' ')[1];
     return getUserFromToken(tenantId, token);
   } else {
     return getUserFromCookie(
