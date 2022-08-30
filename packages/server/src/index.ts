@@ -39,8 +39,12 @@ export let app = (app: string, _options = {}) => {
         authorization: `Signature ${user.__signature}`,
       };
 
-      let query = (query: string, variables: Record<string, any>) =>
-        execHasura(app, query, variables, headers);
+      console.log('querying with signature: ', user.__signature);
+
+      let query = (
+        query: string | DocumentNode,
+        variables: Record<string, any>
+      ) => execHasura(app, query, variables, headers);
 
       return {
         query,
@@ -54,8 +58,10 @@ export let app = (app: string, _options = {}) => {
           secret ?? `${process.env.APPJOINT_HASURA_GRAPHQL_ADMIN_SECRET}`,
       };
 
-      let query = (query: string, variables: Record<string, any>) =>
-        execHasura(app, query, variables, headers);
+      let query = (
+        query: string | DocumentNode,
+        variables: Record<string, any>
+      ) => execHasura(app, query, variables, headers);
 
       return {
         query,
@@ -164,10 +170,11 @@ let getUserFromCookie = async (tenantId: string, cookie: string) => {
 };
 
 let getUserFromRequest = (tenantId: string, req: RequestLike) => {
-  if (req.headers.get('authorization')) {
-    let authHeader = req.headers.get
-      ? req.headers.get('authorization')
-      : req.headers.authorization;
+  let authHeader = req.headers.get
+    ? req.headers.get('authorization')
+    : req.headers.authorization;
+
+  if (authHeader) {
     let token = authHeader?.split(' ')[1];
     return getUserFromToken(tenantId, token);
   } else {

@@ -18,8 +18,8 @@ export default function App({ Component, pageProps }) {
       <div className="header">
         {pageProps.user && (
           <>
-            <div>Hi, {user.email}!</div>
-            <button onClick={logout} style={{ marginRight: 'auto' }}>
+            <div>Welcome!</div>
+            <button onClick={logout} style={{ marginLeft: 'auto' }}>
               Logout
             </button>
           </>

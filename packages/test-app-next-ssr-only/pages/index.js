@@ -2,7 +2,7 @@ import { app } from '@appjoint/server';
 import { gql } from 'graphql-tag';
 import Link from 'next/link';
 
-let appJoint = app('Test-app-ssr-vxfdl');
+let appJoint = app('Demo-app-hpdwq');
 
 export default function Home({ posts }) {
   return (

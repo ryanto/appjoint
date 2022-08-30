@@ -1,7 +1,7 @@
 import { app } from '@appjoint/server';
 import { gql } from 'graphql-tag';
 
-let appJoint = app('Test-app-ssr-vxfdl');
+let appJoint = app('Demo-app-hpdwq');
 
 let UPDATE_POST = gql`
   mutation($id: Int!, $data: posts_set_input!) {
