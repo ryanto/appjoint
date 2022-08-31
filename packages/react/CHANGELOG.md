@@ -1,5 +1,11 @@
 # @appjoint/react
 
+## 0.4.3
+
+### Patch Changes
+
+- [`39dfd78`](https://github.com/ryanto/appjoint/commit/39dfd78970b1c1c6529c15a885efdc0ea117fcb7) [#20](https://github.com/ryanto/appjoint/pull/20) Thanks [@ryanto](https://github.com/ryanto)! - Updates deps, enable features in server
+
 ## 0.4.2
 
 ### Patch Changes
