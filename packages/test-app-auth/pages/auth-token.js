@@ -3,7 +3,6 @@ import useSWR from 'swr';
 
 let fetcher = async url => {
   let authorization = await getAuthorizationHeader();
-  console.log({ authorization });
 
   let response = await fetch(url, {
     headers: {

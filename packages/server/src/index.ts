@@ -1,5 +1,6 @@
-import fetch from 'node-fetch';
+import fetch from 'cross-fetch';
 import { request } from 'graphql-request';
+import { DocumentNode } from 'graphql';
 import { clearCookie, getSignatureFromCookie, sessionCookie } from './cookies';
 
 export type User = {
@@ -17,13 +18,12 @@ let appJointServer = isDevelopingLib
 let appInfo = new Map();
 
 export let app = (app: string, _options = {}) => {
-  let query = (query: string, variables: Record<string, any>) =>
+  let query = (query: string | DocumentNode, variables: Record<string, any>) =>
     execHasura(app, query, variables);
 
   return {
-    // getUserFromCookie: (cookie: string) => getUserFromCookie(app, cookie),
     getUserFromRequest: (req: RequestLike) => getUserFromRequest(app, req),
-
+    getUserFromToken: (token: string) => getUserFromToken(app, token),
     // getSessionCookieFromToken: (token: string) =>
     //   getSessionCookieFromToken(app, token),
 
@@ -34,17 +34,34 @@ export let app = (app: string, _options = {}) => {
     query,
     mutate: query,
 
-    // admin:
-    // headers['x-hasura-admin-secret'] =
-    //   process.env.APPJOINT_HASURA_GRAPHQL_ADMIN_SECRET;
-
     as: (user: User) => {
       let headers = {
         authorization: `Signature ${user.__signature}`,
       };
 
-      let query = (query: string, variables: Record<string, any>) =>
-        execHasura(app, query, variables, headers);
+      console.log('querying with signature: ', user.__signature);
+
+      let query = (
+        query: string | DocumentNode,
+        variables: Record<string, any>
+      ) => execHasura(app, query, variables, headers);
+
+      return {
+        query,
+        mutate: query,
+      };
+    },
+
+    admin: (secret?: string) => {
+      let headers = {
+        'x-hasura-admin-secret':
+          secret ?? `${process.env.APPJOINT_HASURA_GRAPHQL_ADMIN_SECRET}`,
+      };
+
+      let query = (
+        query: string | DocumentNode,
+        variables: Record<string, any>
+      ) => execHasura(app, query, variables, headers);
 
       return {
         query,
@@ -54,34 +71,37 @@ export let app = (app: string, _options = {}) => {
   };
 };
 
-// rename to getUserFromToken
-// let getSessionCookieFromToken = async (tenantId: string, token: string) => {
+type JSONResponse = Record<string, any>;
 
-//   // this needs to request something like user-from-token
-//   let response = await fetch(
-//     `${appJointServer}/api/tenants/${tenantId}/get-signature`,
-//     {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({
-//         token,
-//       }),
-//     }
-//   );
+let getUserFromToken = async (tenantId: string, token: string) => {
+  let response = await fetch(
+    `${appJointServer}/api/tenants/${tenantId}/user-from-token`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token,
+      }),
+    }
+  );
 
-//   let { signature } = await response.json();
-//   let user = { __signature: signature };
+  let { uid, signature } = (await response.json()) as JSONResponse;
+  let user = { uid } as User;
 
-//   return sessionCookie(tenantId, user);
-// };
+  if (uid) {
+    Object.defineProperty(user, '__signature', {
+      value: signature,
+      enumerable: false,
+      writable: false,
+    });
+  }
 
-let login = async (
-  tenantId: string,
-  email: string,
-  password: string
-): Promise<User> => {
+  return user.uid ? user : null;
+};
+
+let login = async (tenantId: string, email: string, password: string) => {
   let response = await fetch(
     `${appJointServer}/api/tenants/${tenantId}/login`,
     {
@@ -96,7 +116,7 @@ let login = async (
     }
   );
 
-  let { user, error } = await response.json();
+  let { user, error } = (await response.json()) as JSONResponse;
 
   if (error) {
     throw new Error(error);
@@ -112,13 +132,10 @@ let login = async (
     delete user.signature;
   }
 
-  return user;
+  return user as User;
 };
 
-let getUserFromCookie = async (
-  tenantId: string,
-  cookie: string
-): Promise<User | null> => {
+let getUserFromCookie = async (tenantId: string, cookie: string) => {
   let signature = getSignatureFromCookie(tenantId, cookie);
 
   if (!signature) {
@@ -138,9 +155,10 @@ let getUserFromCookie = async (
     }
   );
 
-  let user = await response.json();
+  let { uid } = (await response.json()) as JSONResponse;
+  let user = { uid } as User;
 
-  if (user) {
+  if (uid) {
     Object.defineProperty(user, '__signature', {
       value: signature,
       enumerable: false,
@@ -151,11 +169,21 @@ let getUserFromCookie = async (
   return user.uid ? user : null;
 };
 
-let getUserFromRequest = (tenantId: string, req: RequestLike) =>
-  getUserFromCookie(
-    tenantId,
-    req.headers.get ? req.headers.get('cookie') : req.headers.cookie
-  );
+let getUserFromRequest = (tenantId: string, req: RequestLike) => {
+  let authHeader = req.headers.get
+    ? req.headers.get('authorization')
+    : req.headers.authorization;
+
+  if (authHeader) {
+    let token = authHeader?.split(' ')[1];
+    return getUserFromToken(tenantId, token);
+  } else {
+    return getUserFromCookie(
+      tenantId,
+      req.headers.get ? req.headers.get('cookie') : req.headers.cookie
+    );
+  }
+};
 
 let getTenantInfo = async (tenantId: string) => {
   if (!appInfo.get(tenantId)) {
@@ -172,7 +200,7 @@ let getTenantInfo = async (tenantId: string) => {
 
 let execHasura = async (
   tenantId: string,
-  query: string,
+  query: string | DocumentNode,
   variables: Record<string, any>,
   headers: Record<string, string> = {}
 ) => {

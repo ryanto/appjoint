@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Login } from '../../../components/login';
 
-let appJoint = app('Test-app-ssr-vxfdl');
+let appJoint = app('Demo-app-hpdwq');
 
 export default function Edit({ post, user }) {
   let router = useRouter();
@@ -13,7 +13,7 @@ export default function Edit({ post, user }) {
     event.preventDefault();
     let formData = new FormData(event.target);
 
-    let response = await fetch('/api/edit-post', {
+    let response = await fetch('/api/posts/edit', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

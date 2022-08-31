@@ -1,6 +1,6 @@
 import { app } from '@appjoint/server';
 
-let appJoint = app('Test-app-ssr-vxfdl');
+let appJoint = app('Demo-app-hpdwq');
 
 export default async function handler(req, res) {
   res.setHeader('Set-Cookie', appJoint.clearCookie());
