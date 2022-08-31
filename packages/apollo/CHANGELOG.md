@@ -1,5 +1,17 @@
 # @appjoint/apollo
 
+## 2.1.0
+
+### Minor Changes
+
+- [`39dfd78`](https://github.com/ryanto/appjoint/commit/39dfd78970b1c1c6529c15a885efdc0ea117fcb7) [#20](https://github.com/ryanto/appjoint/pull/20) Thanks [@ryanto](https://github.com/ryanto)! - Updates deps, enable features in server
+
+### Patch Changes
+
+- Updated dependencies [[`39dfd78`](https://github.com/ryanto/appjoint/commit/39dfd78970b1c1c6529c15a885efdc0ea117fcb7)]:
+  - @appjoint/react@0.4.3
+  - @appjoint/utils@0.0.3
+
 ## 2.0.1
 
 ### Patch Changes
