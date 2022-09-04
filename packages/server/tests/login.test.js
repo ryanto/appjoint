@@ -3,13 +3,18 @@ let { app } = require('../src/index');
 
 let appJoint;
 beforeEach(() => {
+  nock.disableNetConnect();
   appJoint = app('t');
+});
+
+afterEach(() => {
+  nock.enableNetConnect();
 });
 
 describe('login', () => {
   it('should login', async () => {
-    nock('https://appjoint.vercel.app')
-      .post('/api/tenants/t/login', {
+    nock('https://appjoint.app')
+      .post('/api/apps/t/login', {
         email: 'ryan@example.com',
         password: 'pw',
       })
@@ -29,8 +34,8 @@ describe('login', () => {
   });
 
   it('errors when the login fails', async () => {
-    nock('https://appjoint.vercel.app')
-      .post('/api/tenants/t/login')
+    nock('https://appjoint.app')
+      .post('/api/apps/t/login')
       .reply(200, {
         error: 'login failed',
       });
@@ -40,8 +45,4 @@ describe('login', () => {
       'login failed'
     );
   });
-});
-
-afterAll(() => {
-  nock.restore();
 });

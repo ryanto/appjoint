@@ -11,9 +11,9 @@ export type User = {
 type RequestLike = Partial<{ headers: any }>;
 
 let isDevelopingLib = false;
-let appJointServer = isDevelopingLib
+let appjointApiServer = isDevelopingLib
   ? 'http://localhost:3001'
-  : 'https://appjoint.vercel.app';
+  : 'https://appjoint.app/api';
 
 let appInfo = new Map();
 
@@ -38,8 +38,6 @@ export let app = (app: string, _options = {}) => {
       let headers = {
         authorization: `Signature ${user.__signature}`,
       };
-
-      console.log('querying with signature: ', user.__signature);
 
       let query = (
         query: string | DocumentNode,
@@ -75,7 +73,7 @@ type JSONResponse = Record<string, any>;
 
 let getUserFromToken = async (tenantId: string, token: string) => {
   let response = await fetch(
-    `${appJointServer}/api/tenants/${tenantId}/user-from-token`,
+    `${appjointApiServer}/apps/${tenantId}/user-from-token`,
     {
       method: 'POST',
       headers: {
@@ -102,19 +100,16 @@ let getUserFromToken = async (tenantId: string, token: string) => {
 };
 
 let login = async (tenantId: string, email: string, password: string) => {
-  let response = await fetch(
-    `${appJointServer}/api/tenants/${tenantId}/login`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    }
-  );
+  let response = await fetch(`${appjointApiServer}/apps/${tenantId}/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  });
 
   let { user, error } = (await response.json()) as JSONResponse;
 
@@ -143,7 +138,7 @@ let getUserFromCookie = async (tenantId: string, cookie: string) => {
   }
 
   let response = await fetch(
-    `${appJointServer}/api/tenants/${tenantId}/verify-signature`,
+    `${appjointApiServer}/apps/${tenantId}/verify-signature`,
     {
       method: 'POST',
       headers: {
@@ -187,12 +182,13 @@ let getUserFromRequest = (tenantId: string, req: RequestLike) => {
 
 let getTenantInfo = async (tenantId: string) => {
   if (!appInfo.get(tenantId)) {
-    let response = await fetch(
-      `${appJointServer}/api/tenants/${tenantId}/info`
-    );
+    let info = {
+      graphql: {
+        uri: `https://appjoint.app/${tenantId}/v1/graphql`,
+      },
+    };
 
-    let json = await response.json();
-    appInfo.set(tenantId, json);
+    appInfo.set(tenantId, info);
   }
 
   return appInfo.get(tenantId);

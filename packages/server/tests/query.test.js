@@ -7,20 +7,16 @@ const { print } = require('graphql');
 
 let appJoint;
 beforeEach(() => {
+  nock.disableNetConnect();
   appJoint = app('t');
+});
+
+afterEach(() => {
+  nock.enableNetConnect();
 });
 
 describe('query', () => {
   it('should run a query', async () => {
-    nock('https://appjoint.vercel.app')
-      .get('/api/tenants/t/info')
-      .reply(200, {
-        tenantId: 't',
-        graphql: {
-          uri: 'https://t.appjoint.graphql/v1/graphql',
-        },
-      });
-
     let QUERY = gql`
       query {
         posts {
@@ -29,8 +25,8 @@ describe('query', () => {
       }
     `;
 
-    nock('https://t.appjoint.graphql')
-      .post('/v1/graphql', {
+    nock('https://appjoint.app')
+      .post('/t/v1/graphql', {
         query: QUERY,
       })
       .reply(200, {
@@ -46,19 +42,10 @@ describe('query', () => {
   });
 
   it('should query as a user', async () => {
-    nock('https://appjoint.vercel.app')
-      .post('/api/tenants/t/verify-signature', { signature: 'xxx' })
+    nock('https://appjoint.app')
+      .post('/api/apps/t/verify-signature', { signature: 'xxx' })
       .reply(200, {
         uid: '123',
-      });
-
-    nock('https://appjoint.vercel.app')
-      .get('/api/tenants/t/info')
-      .reply(200, {
-        tenantId: 't',
-        graphql: {
-          uri: 'https://t.appjoint.graphql/v1/graphql',
-        },
       });
 
     let QUERY = gql`
@@ -69,9 +56,9 @@ describe('query', () => {
       }
     `;
 
-    nock('https://t.appjoint.graphql')
+    nock('https://appjoint.app')
       .matchHeader('authorization', 'Signature xxx')
-      .post('/v1/graphql', {
+      .post('/t/v1/graphql', {
         query: QUERY,
       })
       .reply(200, {
@@ -94,15 +81,6 @@ describe('query', () => {
   });
 
   it('should query as an admin', async () => {
-    nock('https://appjoint.vercel.app')
-      .get('/api/tenants/t/info')
-      .reply(200, {
-        tenantId: 't',
-        graphql: {
-          uri: 'https://t.appjoint.graphql/v1/graphql',
-        },
-      });
-
     let QUERY = gql`
       query {
         posts {
@@ -111,9 +89,9 @@ describe('query', () => {
       }
     `;
 
-    nock('https://t.appjoint.graphql')
+    nock('https://appjoint.app')
       .matchHeader('x-hasura-admin-secret', 'ADMIN_SECRET')
-      .post('/v1/graphql', {
+      .post('/t/v1/graphql', {
         query: QUERY,
       })
       .reply(200, {
@@ -129,15 +107,6 @@ describe('query', () => {
   });
 
   it('should be able to use graphql-tag', async () => {
-    nock('https://appjoint.vercel.app')
-      .get('/api/tenants/t/info')
-      .reply(200, {
-        tenantId: 't',
-        graphql: {
-          uri: 'https://t.appjoint.graphql/v1/graphql',
-        },
-      });
-
     let QUERY = gqlTag`
       query {
         posts {
@@ -146,8 +115,8 @@ describe('query', () => {
       }
     `;
 
-    nock('https://t.appjoint.graphql')
-      .post('/v1/graphql', {
+    nock('https://appjoint.app')
+      .post('/t/v1/graphql', {
         query: print(QUERY),
       })
       .reply(200, {
@@ -161,8 +130,4 @@ describe('query', () => {
     expect(response.posts).toHaveLength(2);
     expect(response.posts.map(post => post.id)).toEqual([1, 2]);
   });
-});
-
-afterAll(() => {
-  nock.restore();
 });
