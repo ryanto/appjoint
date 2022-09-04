@@ -4,7 +4,12 @@ let { app } = require('../src/index');
 
 let appJoint;
 beforeEach(() => {
+  nock.disableNetConnect();
   appJoint = app('t');
+});
+
+afterEach(() => {
+  nock.enableNetConnect();
 });
 
 describe('getUserFromRequest', () => {
@@ -29,8 +34,8 @@ describe('getUserFromRequest', () => {
 
   describe('cookie based auth', () => {
     it('should find the user', async () => {
-      nock('https://appjoint.vercel.app')
-        .post('/api/tenants/t/verify-signature', { signature: 'xxx' })
+      nock('https://appjoint.app')
+        .post('/api/apps/t/verify-signature', { signature: 'xxx' })
         .reply(200, {
           uid: '123',
         });
@@ -61,8 +66,8 @@ describe('getUserFromRequest', () => {
     });
 
     it('invalid cookie (no such user)', async () => {
-      nock('https://appjoint.vercel.app')
-        .post('/api/tenants/t/verify-signature', { signature: 'xxx' })
+      nock('https://appjoint.app')
+        .post('/api/apps/t/verify-signature', { signature: 'xxx' })
         .reply(200, {});
 
       let headers = new Headers({
@@ -79,8 +84,8 @@ describe('getUserFromRequest', () => {
 
   describe('authorization header based auth', () => {
     it('should find the user', async () => {
-      nock('https://appjoint.vercel.app')
-        .post('/api/tenants/t/user-from-token', {
+      nock('https://appjoint.app')
+        .post('/api/apps/t/user-from-token', {
           token: 'token',
         })
         .reply(200, {
@@ -114,8 +119,8 @@ describe('getUserFromRequest', () => {
     });
 
     it('invalid token', async () => {
-      nock('https://appjoint.vercel.app')
-        .post('/api/tenants/t/user-from-token', { token: 'token' })
+      nock('https://appjoint.app')
+        .post('/api/apps/t/user-from-token', { token: 'token' })
         .reply(200, {});
 
       let headers = new Headers({
@@ -130,8 +135,8 @@ describe('getUserFromRequest', () => {
     });
 
     it('malformed header (only token, no bearer)', async () => {
-      nock('https://appjoint.vercel.app')
-        .post('/api/tenants/t/user-from-token')
+      nock('https://appjoint.app')
+        .post('/api/apps/t/user-from-token')
         .reply(200, {});
 
       let headers = new Headers({
@@ -145,8 +150,4 @@ describe('getUserFromRequest', () => {
       expect(user).toBeNull();
     });
   });
-});
-
-afterAll(() => {
-  nock.restore();
 });

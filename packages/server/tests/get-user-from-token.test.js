@@ -3,13 +3,18 @@ let { app } = require('../src/index');
 
 let appJoint;
 beforeEach(() => {
+  nock.disableNetConnect();
   appJoint = app('t');
+});
+
+afterEach(() => {
+  nock.enableNetConnect();
 });
 
 describe('getUserFromToken', () => {
   it('should find the user', async () => {
-    nock('https://appjoint.vercel.app')
-      .post('/api/tenants/t/user-from-token', { token: 'token' })
+    nock('https://appjoint.app')
+      .post('/api/apps/t/user-from-token', { token: 'token' })
       .reply(200, {
         uid: '123',
         signature: 'xxx',
@@ -23,16 +28,12 @@ describe('getUserFromToken', () => {
   });
 
   it('invalid token', async () => {
-    nock('https://appjoint.vercel.app')
-      .post('/api/tenants/t/user-from-token', { token: 'bad-token' })
+    nock('https://appjoint.app')
+      .post('/api/apps/t/user-from-token', { token: 'bad-token' })
       .reply(200, {});
 
     let user = await appJoint.getUserFromToken('bad-token');
 
     expect(user).toBeNull();
   });
-});
-
-afterAll(() => {
-  nock.restore();
 });
