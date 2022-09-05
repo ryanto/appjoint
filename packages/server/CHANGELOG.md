@@ -1,5 +1,11 @@
 # @appjoint/server
 
+## 0.0.4
+
+### Patch Changes
+
+- [`2ed2187`](https://github.com/ryanto/appjoint/commit/2ed21870d648745b2d701efb1b8460ad920a00e8) [#22](https://github.com/ryanto/appjoint/pull/22) Thanks [@ryanto](https://github.com/ryanto)! - Improve server endpoints
+
 ## 0.0.3
 
 ### Patch Changes
