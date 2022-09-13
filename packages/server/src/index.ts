@@ -18,7 +18,7 @@ let appjointApiServer = isDevelopingLib
 let appInfo = new Map();
 
 export let app = (app: string, _options = {}) => {
-  let query = (query: string | DocumentNode, variables: Record<string, any>) =>
+  let query = (query: string | DocumentNode, variables?: Record<string, any>) =>
     execHasura(app, query, variables);
 
   return {
@@ -41,7 +41,7 @@ export let app = (app: string, _options = {}) => {
 
       let query = (
         query: string | DocumentNode,
-        variables: Record<string, any>
+        variables?: Record<string, any>
       ) => execHasura(app, query, variables, headers);
 
       return {
@@ -58,7 +58,7 @@ export let app = (app: string, _options = {}) => {
 
       let query = (
         query: string | DocumentNode,
-        variables: Record<string, any>
+        variables?: Record<string, any>
       ) => execHasura(app, query, variables, headers);
 
       return {
@@ -197,7 +197,7 @@ let getTenantInfo = async (tenantId: string) => {
 let execHasura = async (
   tenantId: string,
   query: string | DocumentNode,
-  variables: Record<string, any>,
+  variables?: Record<string, any>,
   headers: Record<string, string> = {}
 ) => {
   let info = await getTenantInfo(tenantId);
