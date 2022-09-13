@@ -2,13 +2,16 @@ import '../styles/globals.css';
 import { AppJoint, useAuth } from '@appjoint/react';
 import { Login } from '../components/login';
 import { useRouter } from 'next/router';
+import { Suspense } from 'react';
 
 export default function App({ Component, pageProps }) {
   return (
     <AppJoint app="test-app-auth">
-      <AuthenticatedApp>
-        <Component {...pageProps} />
-      </AuthenticatedApp>
+      <Suspense fallback={<div data-test="suspended">Suspended</div>}>
+        <AuthenticatedApp>
+          <Component {...pageProps} />
+        </AuthenticatedApp>
+      </Suspense>
     </AppJoint>
   );
 }
@@ -22,10 +25,15 @@ let AuthenticatedApp = ({ children }) => {
     '/create-account',
     '/create-account-form',
     '/auth-token',
+    '/suspense',
   ];
-  let isOnPublicPage = publicUrls.includes(router.asPath);
 
-  return isInitializing ? (
+  let noSplashScreen = ['/suspense'];
+
+  let isOnPublicPage = publicUrls.includes(router.asPath);
+  let skipSplashScreen = noSplashScreen.includes(router.asPath);
+
+  return isInitializing && !skipSplashScreen ? (
     // Display a splash screen until we know if the user is logged in
     <SplashScreen />
   ) : isAuthenticated || isOnPublicPage ? (

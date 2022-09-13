@@ -35,13 +35,20 @@ type App = FirebaseApp | TestApp | undefined;
 
 type AppInfo = {
   app: string | undefined;
+  initializingPromise: Promise<void>;
   instance: App;
   auth: AppAuth;
   test: boolean;
 };
 
+let doneInitializing: () => void;
+let initializingPromise = new Promise<void>(r => {
+  doneInitializing = r;
+});
+
 const AppContext = createContext<AppInfo>({
   app: undefined,
+  initializingPromise,
   instance: undefined,
   test: false,
   auth: {
@@ -86,6 +93,7 @@ export const AppJointProvider = ({
         setUser(testCurrentUser);
         setIsLoading(false);
         setIsInitializing(false);
+        doneInitializing();
       }, 0);
     } else {
       _app =
@@ -99,6 +107,8 @@ export const AppJointProvider = ({
           setUser(user);
           setIsLoading(false);
           setIsInitializing(false);
+          console.log('ok we can stop suspending');
+          doneInitializing();
         }
       });
     }
@@ -115,6 +125,7 @@ export const AppJointProvider = ({
 
   let providedInfo: AppInfo = {
     app,
+    initializingPromise,
     test,
     instance: appInstance,
     auth: {

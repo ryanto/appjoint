@@ -112,9 +112,24 @@ let testCreateAccount: TestCreateAccount = async (
 
 type SignOut = () => Promise<void>;
 
-export const useAuth = () => {
+export const useAuth = ({ suspense = false } = {}) => {
   let app = useApp();
-  let { instance, auth, test } = app;
+  let { instance, initializingPromise, auth, test } = app;
+
+  if (suspense && auth.isInitializing) {
+    if (typeof window !== 'undefined') {
+      console.log('client suspending');
+      throw initializingPromise;
+    } else {
+      console.log('cannot suspend on server');
+      // something like this forces the fallback to render...
+      // throw new Error("Rendering Suspense fallback...");
+      const e = new Error();
+      e.name = 'Rendering Suspense fallback...';
+      delete e.stack;
+      throw e;
+    }
+  }
 
   let createAccount: CreateAccount<
     firebase.auth.UserCredential | TestUser
