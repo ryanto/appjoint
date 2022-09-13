@@ -1,5 +1,11 @@
 # @appjoint/server
 
+## 0.0.5
+
+### Patch Changes
+
+- [`dbb9c94`](https://github.com/ryanto/appjoint/commit/dbb9c94f9b8fd730f873d399dc60ff82984c68cb) [#24](https://github.com/ryanto/appjoint/pull/24) Thanks [@ryanto](https://github.com/ryanto)! - Update type to allow no variables
+
 ## 0.0.4
 
 ### Patch Changes
