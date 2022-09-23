@@ -1,5 +1,11 @@
 # @appjoint/cypress
 
+## 0.1.1
+
+### Patch Changes
+
+- [`3d9a938`](https://github.com/ryanto/appjoint/commit/3d9a938a5a9d8cfdcc3b72ce9b39fcf167c07745) [#29](https://github.com/ryanto/appjoint/pull/29) Thanks [@ryanto](https://github.com/ryanto)! - Loosen cypress peer dep
+
 ## 0.1.0
 
 ### Minor Changes
