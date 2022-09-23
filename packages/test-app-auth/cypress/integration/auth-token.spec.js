@@ -2,7 +2,7 @@
 
 describe('Auth token', () => {
   it('the fetcher should use the users auth token', () => {
-    cy.loginAs({ email: 'ryanto@gmail.com', id: '123' });
+    cy.loginAs({ email: 'ryanto@gmail.com', uid: '123' });
     cy.visit('/auth-token');
 
     cy.get('[data-test=logged-in]')

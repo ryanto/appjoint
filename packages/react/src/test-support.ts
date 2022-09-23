@@ -1,4 +1,5 @@
 export type TestUser = {
+  uid: string;
   email: string;
   getIdToken: () => Promise<string>;
 };
@@ -38,9 +39,11 @@ export let createTestApp = (setUser: UserSetter): TestApp => {
         setUser(user);
         return Promise.resolve(user);
       } else {
-        throw new Error(
+        let error: Error & { code?: string } = new Error(
           `Could not create test user account for ${email} because an account with that email already exists.`
         );
+        error.code = 'auth/email-already-in-use';
+        throw error;
       }
     },
     signOutTestUser: async (): Promise<void> => {
@@ -54,13 +57,13 @@ export const isTest =
   typeof window !== 'undefined' && !!(window as any).Cypress;
 
 export type TestCurrentUserAccount = {
-  id?: string;
+  uid: string;
   email: string;
   role?: string;
 };
 
 export type TestUserAccount = {
-  id?: string;
+  uid: string;
   email: string;
   password: string;
   role?: string;
@@ -70,11 +73,12 @@ type TestAccount = TestCurrentUserAccount | TestUserAccount;
 
 let userFromAccount = (account: TestAccount): TestUser => {
   let token = {
-    id: account.id,
+    uid: account.uid,
     role: account.role,
   };
 
   return {
+    uid: account.uid,
     email: account.email,
     getIdToken: () => Promise.resolve(`echo:${JSON.stringify(token)}`),
   };
@@ -107,11 +111,18 @@ export const findBridgedUserAccount = (
   return account ? userFromAccount(account) : null;
 };
 
+let id = 0;
+
 export const addBridgedUserAccount = (
   email: string,
   password: string
 ): TestUser => {
   let accounts = (window as any).APPJOINT_USER_ACCOUNTS;
-  (window as any).APPJOINT_USER_ACCOUNTS = [{ email, password }, ...accounts];
-  return userFromAccount({ email, password });
+  id = id + 1;
+  let uid = `uid.test.created.${id}`;
+  (window as any).APPJOINT_USER_ACCOUNTS = [
+    { uid, email, password },
+    ...accounts,
+  ];
+  return userFromAccount({ uid, email, password });
 };
