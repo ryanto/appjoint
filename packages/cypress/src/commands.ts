@@ -29,14 +29,30 @@ declare global {
 export const setupAppJoint = () => {
   let loginAsUser: TestCurrentUserAccount | null;
   let users: TestUserAccount[] = [];
+  let id = 0;
+
+  let makeUid = () => {
+    id = id + 1;
+    return `uid.test.${id}`;
+  };
 
   beforeEach(() => {
     cy.resetAppJointUsers();
   });
 
-  Cypress.Commands.add('loginAs', (user: TestCurrentUserAccount | null) => {
-    loginAsUser = user;
-  });
+  Cypress.Commands.add(
+    'loginAs',
+    (user: { uid?: string; email: string; role?: string } | null) => {
+      if (user) {
+        loginAsUser = {
+          uid: user.uid ?? makeUid(),
+          ...user,
+        };
+      } else {
+        loginAsUser = null;
+      }
+    }
+  );
 
   Cypress.on('window:before:load', (win: any) => {
     win.APPJOINT_USER_ACCOUNTS = [...users];
@@ -46,6 +62,9 @@ export const setupAppJoint = () => {
   });
 
   Cypress.Commands.add('addUser', user => {
+    if (!user.uid) {
+      user.uid = makeUid();
+    }
     users = [...users, user];
   });
 

@@ -11,6 +11,11 @@ describe('Create account page', () => {
     cy.get('[data-test=homepage]')
       .contains('Welcome to the home page!')
       .should('exist');
+
+    cy.get('[data-test=email]')
+      .contains('ryanto@gmail.com')
+      .should('exist');
+    cy.get('[data-test=uid]').should('not.be.empty');
   });
 
   it('should throw an error if the create account fails', () => {
@@ -26,6 +31,7 @@ describe('Create account page', () => {
       expect(err.message).to.include(
         'Could not create test user account for ryanto@gmail.com because an account with that email already exists.'
       );
+      expect(err.code).to.eql('auth/email-already-in-use');
       return false;
     });
   });

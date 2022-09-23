@@ -9,7 +9,7 @@ export default function handler(req, res) {
   let userId;
   try {
     let authData = JSON.parse(jsonString);
-    userId = authData.id;
+    userId = authData.uid;
   } catch (e) {
     // console.error(e);
   }

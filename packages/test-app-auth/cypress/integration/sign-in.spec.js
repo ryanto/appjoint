@@ -12,6 +12,11 @@ describe('Sign in page', () => {
     cy.get('[data-test=homepage]')
       .contains('Welcome to the home page!')
       .should('exist');
+
+    cy.get('[data-test=email]')
+      .contains('ryanto@gmail.com')
+      .should('exist');
+    cy.get('[data-test=uid]').should('not.be.empty');
   });
 
   it('should throw an error if the login fails', () => {
