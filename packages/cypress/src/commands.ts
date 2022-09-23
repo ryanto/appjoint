@@ -2,6 +2,9 @@
 
 import { TestUserAccount, TestCurrentUserAccount } from '@appjoint/react';
 
+type LoginAsUser = { uid?: string; email: string; role?: string };
+type AddUser = { uid?: string; email: string; password: string; role?: string };
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -9,13 +12,13 @@ declare global {
        * Login as a user
        * @example cy.loginAs({ email: 'ryanto@gmail.com', role: 'admin' })
        */
-      loginAs(value: TestCurrentUserAccount | null): Chainable<Element>;
+      loginAs(value: LoginAsUser | null): Chainable<Element>;
 
       /**
        * Add a user so you can test your login form
        * @example cy.addUser({ email: 'ryanto@gmail.com', password: 'hello' })
        */
-      addUser(value: TestUserAccount): Chainable<Element>;
+      addUser(value: AddUser): Chainable<Element>;
 
       /**
        * Reset test users created during test
@@ -40,19 +43,16 @@ export const setupAppJoint = () => {
     cy.resetAppJointUsers();
   });
 
-  Cypress.Commands.add(
-    'loginAs',
-    (user: { uid?: string; email: string; role?: string } | null) => {
-      if (user) {
-        loginAsUser = {
-          uid: user.uid ?? makeUid(),
-          ...user,
-        };
-      } else {
-        loginAsUser = null;
-      }
+  Cypress.Commands.add('loginAs', user => {
+    if (user) {
+      loginAsUser = {
+        uid: user.uid ?? makeUid(),
+        ...user,
+      };
+    } else {
+      loginAsUser = null;
     }
-  );
+  });
 
   Cypress.on('window:before:load', (win: any) => {
     win.APPJOINT_USER_ACCOUNTS = [...users];
@@ -62,10 +62,11 @@ export const setupAppJoint = () => {
   });
 
   Cypress.Commands.add('addUser', user => {
-    if (!user.uid) {
-      user.uid = makeUid();
-    }
-    users = [...users, user];
+    let toAdd = {
+      uid: user.uid ?? makeUid(),
+      ...user,
+    };
+    users = [...users, toAdd];
   });
 
   Cypress.Commands.add('resetAppJointUsers', () => {
