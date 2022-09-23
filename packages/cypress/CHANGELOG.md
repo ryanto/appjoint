@@ -1,5 +1,11 @@
 # @appjoint/cypress
 
+## 0.1.2
+
+### Patch Changes
+
+- [`0bc3f31`](https://github.com/ryanto/appjoint/commit/0bc3f313173ec97c3fead035901cec884cd9edfa) [#31](https://github.com/ryanto/appjoint/pull/31) Thanks [@ryanto](https://github.com/ryanto)! - Fix types
+
 ## 0.1.1
 
 ### Patch Changes
