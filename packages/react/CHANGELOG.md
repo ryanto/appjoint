@@ -1,5 +1,11 @@
 # @appjoint/react
 
+## 0.5.0
+
+### Minor Changes
+
+- [`2fd85e6`](https://github.com/ryanto/appjoint/commit/2fd85e6910d46810f56db04fca509689b664ab03) [#26](https://github.com/ryanto/appjoint/pull/26) Thanks [@ryanto](https://github.com/ryanto)! - Test accounts now expose uid. Was previously sometimes id.
+
 ## 0.4.3
 
 ### Patch Changes
