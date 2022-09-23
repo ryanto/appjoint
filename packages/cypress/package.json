@@ -1,6 +1,6 @@
 {
   "name": "@appjoint/cypress",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Cypress test helpers",
   "author": "Ryan Toronto <ryanto@gmail.com>",
   "repository": {
