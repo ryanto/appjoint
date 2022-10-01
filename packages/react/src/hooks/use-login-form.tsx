@@ -23,7 +23,7 @@ export let useLoginForm = () => {
     event.preventDefault();
     let form = event.target as Form<'email' | 'password' | 'remember'>;
     await _signIn(form.email?.value, form.password?.value, {
-      remember: form.remember?.checked,
+      remember: form.remember?.checked ?? true,
     });
   };
 

@@ -10,13 +10,23 @@ type SignInOptions =
     }
   | undefined;
 
+type CreateAccountOptions =
+  | {
+      remember?: boolean;
+    }
+  | undefined;
+
 export type SignIn<T> = (
   email: string,
   password: string,
   signInOptions?: Partial<SignInOptions>
 ) => Promise<T>;
 
-export type CreateAccount<T> = (email: string, password: string) => Promise<T>;
+export type CreateAccount<T> = (
+  email: string,
+  password: string,
+  createAccountOptions?: Partial<CreateAccountOptions>
+) => Promise<T>;
 
 type FirebaseApp = firebase.app.App | undefined;
 
@@ -31,7 +41,7 @@ let firebaseSignIn: FirebaseSignIn = async (
   instance,
   email,
   password,
-  { remember = false } = {}
+  { remember = true } = {}
 ) => {
   let persistence = remember
     ? firebase.auth.Auth.Persistence.LOCAL
@@ -46,14 +56,21 @@ let firebaseSignIn: FirebaseSignIn = async (
 type FirebaseCreateAccount = (
   instance: FirebaseApp,
   email: string,
-  password: string
+  password: string,
+  createAccountOptions?: Partial<CreateAccountOptions>
 ) => Promise<firebase.auth.UserCredential>;
 
 let firebaseCreateAccount: FirebaseCreateAccount = async (
   instance,
   email,
-  password
+  password,
+  { remember = true } = {}
 ) => {
+  let persistence = remember
+    ? firebase.auth.Auth.Persistence.LOCAL
+    : firebase.auth.Auth.Persistence.SESSION;
+
+  await firebase.auth(instance).setPersistence(persistence);
   return await firebase
     .auth(instance)
     .createUserWithEmailAndPassword(email, password);
@@ -98,7 +115,8 @@ let testSignIn: TestSignIn = async (
 type TestCreateAccount = (
   instance: TestApp,
   email: string,
-  password: string
+  password: string,
+  createAccountOptions?: Partial<CreateAccountOptions>
 ) => Promise<TestUser>;
 
 let testCreateAccount: TestCreateAccount = async (
