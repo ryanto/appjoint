@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import '../styles/globals.css';
 
@@ -16,13 +17,15 @@ export default function App({ Component, pageProps }) {
   return (
     <div>
       <div className="header">
-        {pageProps.user && (
-          <>
-            <div>Welcome!</div>
-            <button onClick={logout} style={{ marginLeft: 'auto' }}>
-              Logout
-            </button>
-          </>
+        <div>Welcome!</div>
+        {user ? (
+          <button onClick={logout} style={{ marginLeft: 'auto' }}>
+            Logout
+          </button>
+        ) : (
+          <Link href="/create-account">
+            <a>Create account</a>
+          </Link>
         )}
       </div>
       <Component {...pageProps} />
