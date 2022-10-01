@@ -1,5 +1,11 @@
 # @appjoint/server
 
+## 0.1.0
+
+### Minor Changes
+
+- [`2333e74`](https://github.com/ryanto/appjoint/commit/2333e7428203d290957f179f66a8561b54afae88) [#33](https://github.com/ryanto/appjoint/pull/33) Thanks [@ryanto](https://github.com/ryanto)! - Create account API
+
 ## 0.0.5
 
 ### Patch Changes

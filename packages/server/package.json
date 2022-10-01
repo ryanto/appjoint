@@ -1,6 +1,6 @@
 {
   "name": "@appjoint/server",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "AppJoint on the server",
   "author": "Ryan Toronto <ryanto@gmail.com>",
   "repository": {
