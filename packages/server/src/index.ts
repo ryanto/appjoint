@@ -28,6 +28,8 @@ export let app = (app: string, _options = {}) => {
     //   getSessionCookieFromToken(app, token),
 
     login: (email: string, password: string) => login(app, email, password),
+    createAccount: ({ email, password }: { email: string; password: string }) =>
+      createAccount(app, { email, password }),
     sessionCookie: (user: User) => sessionCookie(app, user),
     clearCookie: () => clearCookie(app),
 
@@ -110,6 +112,43 @@ let login = async (tenantId: string, email: string, password: string) => {
       password,
     }),
   });
+
+  let { user, error } = (await response.json()) as JSONResponse;
+
+  if (error) {
+    throw new Error(error);
+  }
+
+  if (user?.signature) {
+    Object.defineProperty(user, '__signature', {
+      value: user.signature,
+      enumerable: false,
+      writable: false,
+    });
+
+    delete user.signature;
+  }
+
+  return user as User;
+};
+
+let createAccount = async (
+  tenantId: string,
+  { email, password }: { email: string; password: string }
+) => {
+  let response = await fetch(
+    `${appjointApiServer}/apps/${tenantId}/create-account`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    }
+  );
 
   let { user, error } = (await response.json()) as JSONResponse;
 
