@@ -21,8 +21,10 @@ export let useCreateAccountForm = () => {
 
   let handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    let form = event.target as Form<'email' | 'password'>;
-    await _createAccount(form.email?.value, form.password?.value);
+    let form = event.target as Form<'email' | 'password' | 'remember'>;
+    await _createAccount(form.email?.value, form.password?.value, {
+      remember: form.remember?.checked ?? true,
+    });
   };
 
   let formProps = {

@@ -1,12 +1,6 @@
-let path = require("path");
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  webpack: config => {
-    config.resolve.symlinks = false;
-    return config;
-  }
+  reactStrictMode: true
 };
 
 module.exports = nextConfig;
