@@ -1,5 +1,11 @@
 # @appjoint/react
 
+## 0.5.1
+
+### Patch Changes
+
+- [`917fc36`](https://github.com/ryanto/appjoint/commit/917fc3671af3c1747fdaed0b21e8244e05f4334b) [#35](https://github.com/ryanto/appjoint/pull/35) Thanks [@ryanto](https://github.com/ryanto)! - Remember me now defaults to true
+
 ## 0.5.0
 
 ### Minor Changes
