@@ -7,7 +7,7 @@ describe('Login screen that guards app', () => {
     cy.get('[data-test=login-form]').should('exist');
   });
 
-  it('should be able to login', () => {
+  it.only('should be able to login', () => {
     cy.addUser({ email: 'ryanto@gmail.com', password: 'hello' });
     cy.visit('/');
 

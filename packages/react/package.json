@@ -27,7 +27,7 @@
     "react-dom": ">=16"
   },
   "dependencies": {
-    "firebase": "^8.2.9",
+    "firebase": "^9.10.0",
     "tslib": "^2.4.0"
   },
   "publishConfig": {
