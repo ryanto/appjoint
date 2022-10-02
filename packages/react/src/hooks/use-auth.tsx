@@ -25,17 +25,17 @@ export type CreateAccountOptions =
     }
   | undefined;
 
-type SignIn = (
+export type SignIn<T = User> = (
   email: string,
   password: string,
   signInOptions?: Partial<SignInOptions>
-) => Promise<User>;
+) => Promise<T>;
 
-type CreateAccount = (
+export type CreateAccount<T = User> = (
   email: string,
   password: string,
   signInOptions?: Partial<SignInOptions>
-) => Promise<User>;
+) => Promise<T>;
 
 type SignOut = () => Promise<void>;
 
