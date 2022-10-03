@@ -1,5 +1,11 @@
 # @appjoint/react
 
+## 0.5.2
+
+### Patch Changes
+
+- [`08fe308`](https://github.com/ryanto/appjoint/commit/08fe3081adc7ef2c17f3235993841da5a90f1f86) [#37](https://github.com/ryanto/appjoint/pull/37) Thanks [@ryanto](https://github.com/ryanto)! - Code cleanup and upgrades
+
 ## 0.5.1
 
 ### Patch Changes
