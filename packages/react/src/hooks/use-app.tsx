@@ -5,23 +5,16 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import firebase from 'firebase/app';
-import { User } from '../index';
+import { FirebaseApp } from 'firebase/app';
 import {
-  isTest,
-  testCurrentUser,
-  TestApp,
-  createTestApp,
-} from '../test-support';
+  getAuth,
+  onAuthStateChanged,
+  User as FirebaseUser,
+} from 'firebase/auth';
+import { isTest, testCurrentUser } from '../test-support';
 import { Plugin, Plugins } from '../plugin-support';
-
-// don't ask
-let publicKey = ['AIzaSyDg', 'motGx3U', 'Kr0YR32xgdylxcPYCsYrKE'].join('_');
-
-let config = {
-  apiKey: publicKey,
-  authDomain: 'auth-link-1d555.firebaseapp.com',
-};
+import { createFirebaseApp } from '../apps/firebase';
+import { createTestApp, TestApp, TestUser } from '../apps/test';
 
 export type AppAuth = {
   user: User;
@@ -30,8 +23,8 @@ export type AppAuth = {
   isAuthenticated: boolean;
 };
 
-type FirebaseApp = firebase.app.App | undefined;
 type App = FirebaseApp | TestApp | undefined;
+export type User = FirebaseUser | TestUser | null;
 
 type AppInfo = {
   app: string | undefined;
@@ -66,8 +59,8 @@ export const AppJointProvider = ({
   children,
 }: ProviderProps) => {
   let [appInstance, setAppInstance] = useState<App>();
-  let [isLoading, setIsLoading] = useState<boolean>(true);
-  let [isInitializing, setIsInitializing] = useState<boolean>(true);
+  let [isLoading, setIsLoading] = useState(true);
+  let [isInitializing, setIsInitializing] = useState(true);
   let [user, _setUser] = useState<User | null>(null);
 
   let setUser = (user: User | null) => {
@@ -76,39 +69,35 @@ export const AppJointProvider = ({
   };
 
   useEffect(() => {
-    let isMounted = true;
-    let _app;
-    setIsInitializing(true);
+    let _app: App;
+    let unsubscribe: () => void;
 
     if (test) {
       _app = createTestApp(setUser);
-      setTimeout(() => {
+
+      let timeoutId = setTimeout(() => {
         setUser(testCurrentUser);
         setIsLoading(false);
         setIsInitializing(false);
       }, 0);
-    } else {
-      _app =
-        firebase.apps.find(fApp => fApp.name === app) ||
-        firebase.initializeApp(config, app);
 
-      firebase.auth(_app).tenantId = app;
-      firebase.auth(_app).onAuthStateChanged(firebaseUser => {
-        if (isMounted) {
-          let user = firebaseUser?.tenantId === app ? firebaseUser : null;
-          setUser(user);
-          setIsLoading(false);
-          setIsInitializing(false);
-        }
+      unsubscribe = () => clearTimeout(timeoutId);
+    } else {
+      _app = createFirebaseApp(app);
+
+      let _auth = getAuth(_app);
+      _auth.tenantId = app;
+      unsubscribe = onAuthStateChanged(_auth, firebaseUser => {
+        let user = firebaseUser?.tenantId === app ? firebaseUser : null;
+        setUser(user);
+        setIsLoading(false);
+        setIsInitializing(false);
       });
     }
 
     setAppInstance(_app);
 
-    return () => {
-      // clean up on auth state change handler
-      isMounted = false;
-    };
+    return unsubscribe;
   }, [app, test]);
 
   let isAuthenticated = !!user;
