@@ -32,14 +32,4 @@ describe('Login screen that guards app', () => {
       'Error: Could not find test user account for ryanto@gmail.com with password badpassword.'
     );
   });
-
-  it('should show the home page if the user is already logged in', () => {
-    cy.loginAs({ email: 'ryanto@gmail.com' });
-
-    cy.visit('/');
-
-    cy.get('[data-test=homepage]')
-      .contains('Welcome to the home page!')
-      .should('exist');
-  });
 });
