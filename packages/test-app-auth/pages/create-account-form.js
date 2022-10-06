@@ -1,4 +1,4 @@
-import { useAuth, useCreateAccountForm } from '@appjoint/react';
+import { useAfter, useAuth, useCreateAccountForm } from '@appjoint/react';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 

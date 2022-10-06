@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-describe('Auth cookie', () => {
+describe.skip('Auth cookie', () => {
   it('should not be able to fetch data without a session cookie', () => {
     cy.loginAs({ email: 'ryanto@gmail.com', uid: '123' });
     cy.visit('/auth-cookie');

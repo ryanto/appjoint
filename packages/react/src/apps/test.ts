@@ -31,11 +31,11 @@ export type TestUser = {
   getIdToken: () => Promise<string>;
 };
 
-type UserSetter = (user: TestUser | null) => void;
+type UserSetter = (user: TestUser | null) => Promise<void>;
 
 export type TestApp = ReturnType<typeof createTestApp>;
 
-export let createTestApp = (setUser: UserSetter) => {
+export let createTestApp = (setAppUser: UserSetter) => {
   return {
     signInTestUser: async (
       email: string,
@@ -43,7 +43,7 @@ export let createTestApp = (setUser: UserSetter) => {
     ): Promise<TestUser> => {
       let user = findBridgedUserAccount(email, password);
       if (user) {
-        setUser(user);
+        setAppUser(user);
         return Promise.resolve(user);
       } else {
         throw new Error(
@@ -59,7 +59,7 @@ export let createTestApp = (setUser: UserSetter) => {
 
       if (!user) {
         let user = addBridgedUserAccount(email, password);
-        setUser(user);
+        setAppUser(user);
         return Promise.resolve(user);
       } else {
         let error: Error & { code?: string } = new Error(
@@ -70,7 +70,7 @@ export let createTestApp = (setUser: UserSetter) => {
       }
     },
     signOutTestUser: async (): Promise<void> => {
-      setUser(null);
+      setAppUser(null);
       return Promise.resolve();
     },
   };

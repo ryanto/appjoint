@@ -67,37 +67,37 @@ export const useAuth = () => {
       : firebaseSignOut(instance as FirebaseApp);
   }, [instance, test]);
 
-  let requestAuthCookie = useCallback(
-    endpoint => _requestAuthCookie(auth.user, endpoint),
-    [auth.user]
-  );
+  // let requestAuthCookie = useCallback(
+  //   endpoint => _requestAuthCookie(auth.user, endpoint),
+  //   [auth.user]
+  // );
 
   return {
     ...auth,
     createAccount,
     signIn,
     signOut,
-    requestAuthCookie,
+    // requestAuthCookie,
   };
 };
 
-let _requestAuthCookie = async (user: User, endpoint: string) => {
-  if (!user) {
-    throw new Error(
-      'Cannot request an auth cookie when the user is not logged in.'
-    );
-  }
+// let _requestAuthCookie = async (user: User, endpoint: string) => {
+//   if (!user) {
+//     throw new Error(
+//       'Cannot request an auth cookie when the user is not logged in.'
+//     );
+//   }
 
-  let token = await user.getIdToken();
-  let response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      authorization: `Bearer ${token}`,
-    },
-  });
+//   let token = await user.getIdToken();
+//   let response = await fetch(endpoint, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       authorization: `Bearer ${token}`,
+//     },
+//   });
 
-  if (response.status !== 200) {
-    throw new Error('Requesting an auth cookie failed.');
-  }
-};
+//   if (response.status !== 200) {
+//     throw new Error('Requesting an auth cookie failed.');
+//   }
+// };
