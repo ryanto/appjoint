@@ -1,5 +1,11 @@
 # @appjoint/server
 
+## 0.1.1
+
+### Patch Changes
+
+- [`5c0d36d`](https://github.com/ryanto/appjoint/commit/5c0d36de4113c7d44b3c10e2198fd36a871eec6b) [#39](https://github.com/ryanto/appjoint/pull/39) Thanks [@ryanto](https://github.com/ryanto)! - Starting to setup the ability to request auth cookies
+
 ## 0.1.0
 
 ### Minor Changes
