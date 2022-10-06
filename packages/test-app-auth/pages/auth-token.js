@@ -14,7 +14,7 @@ let fetcher = async url => {
 };
 
 export default function AuthToken() {
-  const { data, isValidating } = useSWR('/api/whoami', fetcher);
+  const { data, isValidating } = useSWR('/api/auth-header', fetcher);
 
   return (
     <div>

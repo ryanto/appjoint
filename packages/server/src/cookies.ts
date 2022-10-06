@@ -1,7 +1,7 @@
 import { parse, serialize } from 'cookie';
 import { User } from '.';
 
-let age = 60 * 60 * 24 * 12; // 12 days
+let age = 60 * 60 * 24 * 90; // 90 days
 let name = (tenantId: string) => `appJointUser-${tenantId}`;
 
 export let clearCookie = (tenantId: string) =>
