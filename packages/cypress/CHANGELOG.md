@@ -1,5 +1,11 @@
 # @appjoint/cypress
 
+## 0.2.0
+
+### Minor Changes
+
+- [`711e0db`](https://github.com/ryanto/appjoint/commit/711e0db7c3806a22627d075e8e25d4ba5b7c48e5) [#41](https://github.com/ryanto/appjoint/pull/41) Thanks [@ryanto](https://github.com/ryanto)! - Wrap and return user from loginAs
+
 ## 0.1.2
 
 ### Patch Changes
