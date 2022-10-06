@@ -1,5 +1,12 @@
 # @appjoint/apollo
 
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`5c0d36d`](https://github.com/ryanto/appjoint/commit/5c0d36de4113c7d44b3c10e2198fd36a871eec6b)]:
+  - @appjoint/react@0.6.0
+
 ## 3.0.0
 
 ### Patch Changes
