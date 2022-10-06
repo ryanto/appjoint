@@ -12,7 +12,9 @@ declare global {
        * Login as a user
        * @example cy.loginAs({ email: 'ryanto@gmail.com', role: 'admin' })
        */
-      loginAs(value: LoginAsUser | null): Chainable<Element>;
+      loginAs(
+        value: LoginAsUser | null
+      ): Chainable<TestCurrentUserAccount | null>;
 
       /**
        * Add a user so you can test your login form
@@ -52,6 +54,8 @@ export const setupAppJoint = () => {
     } else {
       loginAsUser = null;
     }
+
+    return cy.wrap(loginAsUser);
   });
 
   Cypress.on('window:before:load', (win: any) => {
