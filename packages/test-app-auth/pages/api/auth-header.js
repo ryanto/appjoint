@@ -1,14 +1,12 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-
 export default function handler(req, res) {
   let authHeader = req.headers.authorization;
 
   // extract the user id from the test auth headers.
-  let jsonString = authHeader.replace(/^Bearer echo:/, '');
+  let authJsonString = authHeader.replace(/^Bearer echo:/, '');
 
   let userId;
   try {
-    let authData = JSON.parse(jsonString);
+    let authData = JSON.parse(authJsonString);
     userId = authData.uid;
   } catch (e) {
     // console.error(e);

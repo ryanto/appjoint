@@ -14,7 +14,7 @@ describe('cookies', () => {
       });
 
       expect(cookie).toEqual(
-        'appJointUser-t=testing; Max-Age=1036800; Path=/; HttpOnly; Secure; SameSite=Lax'
+        'appJointUser-t=testing; Max-Age=7776000; Path=/; HttpOnly; Secure; SameSite=Lax'
       );
     });
   });

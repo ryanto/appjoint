@@ -1,6 +1,7 @@
 import React, {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -15,12 +16,18 @@ import { isTest, testCurrentUser } from '../test-support';
 import { Plugin, Plugins } from '../plugin-support';
 import { createFirebaseApp } from '../apps/firebase';
 import { createTestApp, TestApp, TestUser } from '../apps/test';
+import { Callback } from './use-callbacks';
 
 export type AppAuth = {
   user: User;
   isLoading: boolean;
   isInitializing: boolean;
   isAuthenticated: boolean;
+};
+
+type AppCallbacks = {
+  run: (queue: string, data?: unknown) => Promise<void>;
+  register: (queue: string, callback: Callback) => void;
 };
 
 type App = FirebaseApp | TestApp | undefined;
@@ -30,7 +37,12 @@ type AppInfo = {
   app: string | undefined;
   instance: App;
   auth: AppAuth;
+  callbacks: AppCallbacks;
   test: boolean;
+};
+
+let mustBeUsedInsideProvider = () => {
+  throw new Error('Called outside of <AppJoint> provider');
 };
 
 const AppContext = createContext<AppInfo>({
@@ -42,6 +54,10 @@ const AppContext = createContext<AppInfo>({
     isLoading: true,
     isInitializing: true,
     isAuthenticated: false,
+  },
+  callbacks: {
+    run: mustBeUsedInsideProvider,
+    register: mustBeUsedInsideProvider,
   },
 });
 
@@ -62,21 +78,50 @@ export const AppJointProvider = ({
   let [isLoading, setIsLoading] = useState(true);
   let [isInitializing, setIsInitializing] = useState(true);
   let [user, _setUser] = useState<User | null>(null);
+  let [callbacks, setCallbacks] = useState<
+    { queue: string; callback: Callback }[]
+  >([]);
 
-  let setUser = (user: User | null) => {
-    _setUser(user);
-    store.user = user;
-  };
+  let registerCallback = useCallback((queue: string, callback: Callback) => {
+    let id = {
+      queue,
+      callback,
+    };
+
+    setCallbacks(current => [...current, id]);
+    return () => {
+      setCallbacks(current => current.filter(c => c !== id));
+    };
+  }, []);
+
+  let runCallbacks = useCallback(
+    async (queue: string, data?: unknown) => {
+      let promises = callbacks
+        .filter(({ queue: name }) => name === queue)
+        .map(({ callback }) => callback(data));
+      await Promise.all(promises);
+    },
+    [callbacks]
+  );
+
+  let setAppUser = useCallback(
+    async (user: User | null) => {
+      await runCallbacks('before:setUser', user);
+      _setUser(user);
+      store.user = user;
+    },
+    [runCallbacks]
+  );
 
   useEffect(() => {
     let _app: App;
     let unsubscribe: () => void;
 
     if (test) {
-      _app = createTestApp(setUser);
+      _app = createTestApp(setAppUser);
 
-      let timeoutId = setTimeout(() => {
-        setUser(testCurrentUser);
+      let timeoutId = setTimeout(async () => {
+        await setAppUser(testCurrentUser);
         setIsLoading(false);
         setIsInitializing(false);
       }, 0);
@@ -87,9 +132,9 @@ export const AppJointProvider = ({
 
       let _auth = getAuth(_app);
       _auth.tenantId = app;
-      unsubscribe = onAuthStateChanged(_auth, firebaseUser => {
+      unsubscribe = onAuthStateChanged(_auth, async firebaseUser => {
         let user = firebaseUser?.tenantId === app ? firebaseUser : null;
-        setUser(user);
+        await setAppUser(user);
         setIsLoading(false);
         setIsInitializing(false);
       });
@@ -98,7 +143,7 @@ export const AppJointProvider = ({
     setAppInstance(_app);
 
     return unsubscribe;
-  }, [app, test]);
+  }, [app, test, setAppUser]);
 
   let isAuthenticated = !!user;
 
@@ -111,6 +156,10 @@ export const AppJointProvider = ({
       isAuthenticated,
       isLoading,
       isInitializing,
+    },
+    callbacks: {
+      run: runCallbacks,
+      register: registerCallback,
     },
   };
 
