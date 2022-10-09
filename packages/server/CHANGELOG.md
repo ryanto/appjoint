@@ -1,5 +1,11 @@
 # @appjoint/server
 
+## 0.1.2
+
+### Patch Changes
+
+- [`ff21038`](https://github.com/ryanto/appjoint/commit/ff2103840486a569b250f1ce83fed855a8c38be9) [#43](https://github.com/ryanto/appjoint/pull/43) Thanks [@ryanto](https://github.com/ryanto)! - Allow fetch to be customized
+
 ## 0.1.1
 
 ### Patch Changes
