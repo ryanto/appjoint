@@ -1,5 +1,5 @@
-import fetch from 'cross-fetch';
-import { request } from 'graphql-request';
+import crossFetch from 'cross-fetch';
+import { GraphQLClient } from 'graphql-request';
 import { DocumentNode } from 'graphql';
 import { clearCookie, getSignatureFromCookie, sessionCookie } from './cookies';
 
@@ -9,6 +9,19 @@ export type User = {
 };
 
 type RequestLike = Partial<{ headers: any }>;
+type Fetcher = (
+  input: RequestInfo | URL,
+  init?: RequestInit
+) => Promise<Response>;
+
+type Options = {
+  fetch?: Fetcher;
+};
+
+type Config = {
+  tenantId: string;
+  fetch: Fetcher;
+};
 
 let isDevelopingLib = false;
 let appjointApiServer = isDevelopingLib
@@ -17,19 +30,25 @@ let appjointApiServer = isDevelopingLib
 
 let appInfo = new Map();
 
-export let app = (app: string, _options = {}) => {
+export let app = (app: string, options: Options = {}) => {
+  let fetch = options.fetch ?? crossFetch;
+  let config = {
+    tenantId: app,
+    fetch,
+  };
+
   let query = (query: string | DocumentNode, variables?: Record<string, any>) =>
-    execHasura(app, query, variables);
+    execHasura(config, query, variables);
 
   return {
-    getUserFromRequest: (req: RequestLike) => getUserFromRequest(app, req),
-    getUserFromToken: (token: string) => getUserFromToken(app, token),
+    getUserFromRequest: (req: RequestLike) => getUserFromRequest(config, req),
+    getUserFromToken: (token: string) => getUserFromToken(config, token),
     // getSessionCookieFromToken: (token: string) =>
     //   getSessionCookieFromToken(app, token),
 
-    login: (email: string, password: string) => login(app, email, password),
+    login: (email: string, password: string) => login(config, email, password),
     createAccount: ({ email, password }: { email: string; password: string }) =>
-      createAccount(app, { email, password }),
+      createAccount(config, { email, password }),
     sessionCookie: (user: User) => sessionCookie(app, user),
     clearCookie: () => clearCookie(app),
 
@@ -44,7 +63,7 @@ export let app = (app: string, _options = {}) => {
       let query = (
         query: string | DocumentNode,
         variables?: Record<string, any>
-      ) => execHasura(app, query, variables, headers);
+      ) => execHasura(config, query, variables, headers);
 
       return {
         query,
@@ -61,7 +80,7 @@ export let app = (app: string, _options = {}) => {
       let query = (
         query: string | DocumentNode,
         variables?: Record<string, any>
-      ) => execHasura(app, query, variables, headers);
+      ) => execHasura(config, query, variables, headers);
 
       return {
         query,
@@ -73,9 +92,9 @@ export let app = (app: string, _options = {}) => {
 
 type JSONResponse = Record<string, any>;
 
-let getUserFromToken = async (tenantId: string, token: string) => {
-  let response = await fetch(
-    `${appjointApiServer}/apps/${tenantId}/user-from-token`,
+let getUserFromToken = async (config: Config, token: string) => {
+  let response = await config.fetch(
+    `${appjointApiServer}/apps/${config.tenantId}/user-from-token`,
     {
       method: 'POST',
       headers: {
@@ -101,43 +120,9 @@ let getUserFromToken = async (tenantId: string, token: string) => {
   return user.uid ? user : null;
 };
 
-let login = async (tenantId: string, email: string, password: string) => {
-  let response = await fetch(`${appjointApiServer}/apps/${tenantId}/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      email,
-      password,
-    }),
-  });
-
-  let { user, error } = (await response.json()) as JSONResponse;
-
-  if (error) {
-    throw new Error(error);
-  }
-
-  if (user?.signature) {
-    Object.defineProperty(user, '__signature', {
-      value: user.signature,
-      enumerable: false,
-      writable: false,
-    });
-
-    delete user.signature;
-  }
-
-  return user as User;
-};
-
-let createAccount = async (
-  tenantId: string,
-  { email, password }: { email: string; password: string }
-) => {
-  let response = await fetch(
-    `${appjointApiServer}/apps/${tenantId}/create-account`,
+let login = async (config: Config, email: string, password: string) => {
+  let response = await config.fetch(
+    `${appjointApiServer}/apps/${config.tenantId}/login`,
     {
       method: 'POST',
       headers: {
@@ -169,15 +154,52 @@ let createAccount = async (
   return user as User;
 };
 
-let getUserFromCookie = async (tenantId: string, cookie: string) => {
-  let signature = getSignatureFromCookie(tenantId, cookie);
+let createAccount = async (
+  config: Config,
+  { email, password }: { email: string; password: string }
+) => {
+  let response = await config.fetch(
+    `${appjointApiServer}/apps/${config.tenantId}/create-account`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    }
+  );
+
+  let { user, error } = (await response.json()) as JSONResponse;
+
+  if (error) {
+    throw new Error(error);
+  }
+
+  if (user?.signature) {
+    Object.defineProperty(user, '__signature', {
+      value: user.signature,
+      enumerable: false,
+      writable: false,
+    });
+
+    delete user.signature;
+  }
+
+  return user as User;
+};
+
+let getUserFromCookie = async (config: Config, cookie: string) => {
+  let signature = getSignatureFromCookie(config.tenantId, cookie);
 
   if (!signature) {
     return null;
   }
 
-  let response = await fetch(
-    `${appjointApiServer}/apps/${tenantId}/verify-signature`,
+  let response = await config.fetch(
+    `${appjointApiServer}/apps/${config.tenantId}/verify-signature`,
     {
       method: 'POST',
       headers: {
@@ -203,46 +225,50 @@ let getUserFromCookie = async (tenantId: string, cookie: string) => {
   return user.uid ? user : null;
 };
 
-let getUserFromRequest = (tenantId: string, req: RequestLike) => {
+let getUserFromRequest = (config: Config, req: RequestLike) => {
   let authHeader = req.headers.get
     ? req.headers.get('authorization')
     : req.headers.authorization;
 
   if (authHeader) {
     let token = authHeader?.split(' ')[1];
-    return getUserFromToken(tenantId, token);
+    return getUserFromToken(config, token);
   } else {
     return getUserFromCookie(
-      tenantId,
+      config,
       req.headers.get ? req.headers.get('cookie') : req.headers.cookie
     );
   }
 };
 
-let getTenantInfo = async (tenantId: string) => {
-  if (!appInfo.get(tenantId)) {
+let getTenantInfo = async (config: Config) => {
+  if (!appInfo.get(config.tenantId)) {
+    let uri = `https://appjoint.app/${config.tenantId}/v1/graphql`;
+    let client = new GraphQLClient(uri, {
+      fetch: config.fetch,
+    });
+
     let info = {
       graphql: {
-        uri: `https://appjoint.app/${tenantId}/v1/graphql`,
+        uri,
+        client,
       },
     };
 
-    appInfo.set(tenantId, info);
+    appInfo.set(config.tenantId, info);
   }
 
-  return appInfo.get(tenantId);
+  return appInfo.get(config.tenantId);
 };
 
 let execHasura = async (
-  tenantId: string,
+  config: Config,
   query: string | DocumentNode,
   variables?: Record<string, any>,
   headers: Record<string, string> = {}
 ) => {
-  let info = await getTenantInfo(tenantId);
-
-  return await request({
-    url: info.graphql.uri,
+  let info = await getTenantInfo(config);
+  return await info.graphql.client.request({
     document: query,
     variables: variables,
     requestHeaders: headers,
