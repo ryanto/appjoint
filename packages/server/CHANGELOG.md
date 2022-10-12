@@ -1,5 +1,11 @@
 # @appjoint/server
 
+## 0.1.3
+
+### Patch Changes
+
+- [`4c9b55d`](https://github.com/ryanto/appjoint/commit/4c9b55dabf6484c106e00c5f8e4cd35edc0e24bf) [#45](https://github.com/ryanto/appjoint/pull/45) Thanks [@ryanto](https://github.com/ryanto)! - Ability to provide custom graphql server
+
 ## 0.1.2
 
 ### Patch Changes
