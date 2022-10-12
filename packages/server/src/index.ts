@@ -16,11 +16,13 @@ type Fetcher = (
 
 type Options = {
   fetch?: Fetcher;
+  graphqlEndpoint?: string;
 };
 
 type Config = {
   tenantId: string;
   fetch: Fetcher;
+  graphqlEndpoint?: string;
 };
 
 let isDevelopingLib = false;
@@ -35,6 +37,7 @@ export let app = (app: string, options: Options = {}) => {
   let config = {
     tenantId: app,
     fetch,
+    graphqlEndpoint: options.graphqlEndpoint,
   };
 
   let query = (query: string | DocumentNode, variables?: Record<string, any>) =>
@@ -243,7 +246,9 @@ let getUserFromRequest = (config: Config, req: RequestLike) => {
 
 let getTenantInfo = async (config: Config) => {
   if (!appInfo.get(config.tenantId)) {
-    let uri = `https://appjoint.app/${config.tenantId}/v1/graphql`;
+    let uri =
+      config.graphqlEndpoint ??
+      `https://appjoint.app/${config.tenantId}/v1/graphql`;
     let client = new GraphQLClient(uri, {
       fetch: config.fetch,
     });
