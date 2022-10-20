@@ -1,5 +1,11 @@
 # @appjoint/react
 
+## 0.6.1
+
+### Patch Changes
+
+- [`19dddf2`](https://github.com/ryanto/appjoint/commit/19dddf273b15ed7a71b62ae5e9d417cb5fc0f9d5) [#47](https://github.com/ryanto/appjoint/pull/47) Thanks [@ryanto](https://github.com/ryanto)! - Make sure auth persists correctly
+
 ## 0.6.0
 
 ### Minor Changes
