@@ -8,7 +8,8 @@ import React, {
 } from 'react';
 import { FirebaseApp } from 'firebase/app';
 import {
-  getAuth,
+  browserLocalPersistence,
+  initializeAuth,
   onAuthStateChanged,
   User as FirebaseUser,
 } from 'firebase/auth';
@@ -130,7 +131,9 @@ export const AppJointProvider = ({
     } else {
       _app = createFirebaseApp(app);
 
-      let _auth = getAuth(_app);
+      let _auth = initializeAuth(_app, {
+        persistence: browserLocalPersistence,
+      });
       _auth.tenantId = app;
       unsubscribe = onAuthStateChanged(_auth, async firebaseUser => {
         let user = firebaseUser?.tenantId === app ? firebaseUser : null;
