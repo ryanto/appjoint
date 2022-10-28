@@ -1,5 +1,11 @@
 # @appjoint/server
 
+## 0.1.4
+
+### Patch Changes
+
+- [`1f8f31b`](https://github.com/ryanto/appjoint/commit/1f8f31b6367a477c10543310380c55ad31923bdc) [#49](https://github.com/ryanto/appjoint/pull/49) Thanks [@ryanto](https://github.com/ryanto)! - Add getUserFromHeaders api
+
 ## 0.1.3
 
 ### Patch Changes
