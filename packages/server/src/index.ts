@@ -9,6 +9,7 @@ export type User = {
 };
 
 type RequestLike = Partial<{ headers: any }>;
+
 type Fetcher = (
   input: RequestInfo | URL,
   init?: RequestInit
@@ -45,9 +46,8 @@ export let app = (app: string, options: Options = {}) => {
 
   return {
     getUserFromRequest: (req: RequestLike) => getUserFromRequest(config, req),
+    getUserFromHeaders: (headers: any) => getUserFromHeaders(config, headers),
     getUserFromToken: (token: string) => getUserFromToken(config, token),
-    // getSessionCookieFromToken: (token: string) =>
-    //   getSessionCookieFromToken(app, token),
 
     login: (email: string, password: string) => login(config, email, password),
     createAccount: ({ email, password }: { email: string; password: string }) =>
@@ -228,10 +228,17 @@ let getUserFromCookie = async (config: Config, cookie: string) => {
   return user.uid ? user : null;
 };
 
-let getUserFromRequest = (config: Config, req: RequestLike) => {
-  let authHeader = req.headers.get
-    ? req.headers.get('authorization')
-    : req.headers.authorization;
+let getUserFromRequest = (config: Config, req: RequestLike) =>
+  getUserFromHeaders(config, req.headers);
+
+let getUserFromHeaders = (config: Config, headers: any) => {
+  if (!headers) {
+    return Promise.resolve(null);
+  }
+
+  let authHeader = headers.get
+    ? headers.get('authorization')
+    : headers.authorization;
 
   if (authHeader) {
     let token = authHeader?.split(' ')[1];
@@ -239,7 +246,7 @@ let getUserFromRequest = (config: Config, req: RequestLike) => {
   } else {
     return getUserFromCookie(
       config,
-      req.headers.get ? req.headers.get('cookie') : req.headers.cookie
+      headers.get ? headers.get('cookie') : headers.cookie
     );
   }
 };

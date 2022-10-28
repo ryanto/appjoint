@@ -15,14 +15,10 @@
     "lint": "tsdx lint",
     "prepublish": "npm run build"
   },
-  "main": "dist/index.cjs.js",
+  "type": "module",
+  "main": "dist/index.es.js",
   "module": "dist/index.es.js",
-  "exports": {
-    ".": {
-      "import": "./dist/index.es.js",
-      "require": "./dist/index.cjs.js"
-    }
-  },
+  "exports": "./dist/index.es.js",
   "typings": "dist/index.d.ts",
   "files": [
     "README.md",
