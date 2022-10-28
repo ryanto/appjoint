@@ -27,4 +27,4 @@ jobs:
           build: yarn workspace test-app-auth build
           start: yarn workspace test-app-auth start
           wait-on: 'http://localhost:3000'
-          command: yarn workspace test-app-auth cypress run
+          command: yarn workspace test-app-auth cypress:run
