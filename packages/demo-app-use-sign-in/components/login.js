@@ -1,4 +1,5 @@
 import { useLoginForm } from "@appjoint/react";
+import Link from "next/link";
 
 export const Login = function() {
   let { isSubmitting, error, formProps } = useLoginForm();
@@ -78,9 +79,11 @@ export const Login = function() {
               </div>
 
               <div className="text-sm">
-                <a className="font-medium text-blue-600 hover:text-blue-500">
-                  Forgot your password?
-                </a>
+                <Link href="/forgot-password">
+                  <a className="font-medium text-blue-600 hover:text-blue-500">
+                    Forgot your password?
+                  </a>
+                </Link>
               </div>
             </div>
 

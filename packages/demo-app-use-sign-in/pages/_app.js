@@ -18,10 +18,11 @@ function MyApp({ Component, pageProps }) {
 function InnerApp({ children }) {
   let { isInitializing, isAuthenticated } = useAuth();
   let { asPath } = useRouter();
+  let onPage = asPath.match(/^[^?]+/)[0];
 
-  let publicRoutes = ["/sign-up"];
+  let publicRoutes = ["/sign-up", "/forgot-password", "/reset-password"];
 
-  let isPublicPage = publicRoutes.includes(asPath);
+  let isPublicPage = publicRoutes.includes(onPage);
 
   return isInitializing ? (
     <></>

@@ -5,6 +5,8 @@ import {
   firebaseCreateAccount,
   firebaseSignIn,
   firebaseSignOut,
+  firebaseSendPasswordResetEmail,
+  firebaseResetPassword,
 } from '../apps/firebase';
 import {
   TestApp,
@@ -39,6 +41,10 @@ export type CreateAccount<T = User> = (
 
 type SignOut = () => Promise<void>;
 
+type SendPasswordResetEmail = (email: string) => Promise<void>;
+
+type ResetPassword = (code: string, newPassword: string) => Promise<void>;
+
 export const useAuth = () => {
   let app = useApp();
   let { instance, auth, test } = app;
@@ -67,37 +73,30 @@ export const useAuth = () => {
       : firebaseSignOut(instance as FirebaseApp);
   }, [instance, test]);
 
-  // let requestAuthCookie = useCallback(
-  //   endpoint => _requestAuthCookie(auth.user, endpoint),
-  //   [auth.user]
-  // );
+  let sendPasswordResetEmail: SendPasswordResetEmail = useCallback(
+    (...args) => {
+      return test
+        ? Promise.reject('Not implemented yet.')
+        : firebaseSendPasswordResetEmail(instance as FirebaseApp, ...args);
+    },
+    [instance, test]
+  );
+
+  let resetPassword: ResetPassword = useCallback(
+    (...args) => {
+      return test
+        ? Promise.reject('Not implemented yet.')
+        : firebaseResetPassword(instance as FirebaseApp, ...args);
+    },
+    [instance, test]
+  );
 
   return {
     ...auth,
     createAccount,
     signIn,
     signOut,
-    // requestAuthCookie,
+    sendPasswordResetEmail,
+    resetPassword,
   };
 };
-
-// let _requestAuthCookie = async (user: User, endpoint: string) => {
-//   if (!user) {
-//     throw new Error(
-//       'Cannot request an auth cookie when the user is not logged in.'
-//     );
-//   }
-
-//   let token = await user.getIdToken();
-//   let response = await fetch(endpoint, {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//       authorization: `Bearer ${token}`,
-//     },
-//   });
-
-//   if (response.status !== 200) {
-//     throw new Error('Requesting an auth cookie failed.');
-//   }
-// };
