@@ -2,8 +2,10 @@ import { FirebaseApp, getApps, initializeApp } from 'firebase/app';
 import {
   browserLocalPersistence,
   browserSessionPersistence,
+  confirmPasswordReset,
   createUserWithEmailAndPassword,
   getAuth,
+  sendPasswordResetEmail,
   setPersistence,
   signInWithEmailAndPassword,
   signOut,
@@ -47,6 +49,23 @@ export let firebaseCreateAccount = async (
   await setPersistence(_auth, persistence);
   let { user } = await createUserWithEmailAndPassword(_auth, email, password);
   return user;
+};
+
+export let firebaseSendPasswordResetEmail = async (
+  instance: FirebaseApp,
+  email: string
+) => {
+  let _auth = getAuth(instance);
+  return await sendPasswordResetEmail(_auth, email);
+};
+
+export let firebaseResetPassword = async (
+  instance: FirebaseApp,
+  code: string,
+  newPassword: string
+) => {
+  let _auth = getAuth(instance);
+  return await confirmPasswordReset(_auth, code, newPassword);
 };
 
 // don't ask
