@@ -1,5 +1,11 @@
 # @appjoint/react
 
+## 0.6.2
+
+### Patch Changes
+
+- [`351d897`](https://github.com/ryanto/appjoint/commit/351d89745f13756e2ce5900f869e1a9b0b129433) [#51](https://github.com/ryanto/appjoint/pull/51) Thanks [@ryanto](https://github.com/ryanto)! - Expose pw reset APIs through useAuth
+
 ## 0.6.1
 
 ### Patch Changes
