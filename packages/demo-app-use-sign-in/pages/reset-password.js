@@ -1,7 +1,19 @@
 import { useApp, useAuth } from "@appjoint/react";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+
+let code, tenantId;
+
+// with next's router these query params will be undefined on the first render,
+// but they aren't undefined in reality! we can make things a lot easier for
+// ourselves by reading these values off the window object before render and
+// having our react component close over the values.
+if (typeof window !== "undefined") {
+  let urlSearchParams = new URLSearchParams(window.location.search);
+  let params = Object.fromEntries(urlSearchParams.entries());
+  code = params.oobCode;
+  tenantId = params.tenantId;
+}
 
 export default function ResetPasswordPage() {
   let [isInitializing, setIsInitializing] = useState(true);
@@ -15,14 +27,12 @@ export default function ResetPasswordPage() {
   let isValid = !isInitializing && email;
   let isInvalid = !isInitializing && !email;
 
-  let router = useRouter();
-  let tenantId = router.query.tenantId;
-  let code = router.query.oobCode;
-
+  // we wont know the users email until we verify the reset code. this effect
+  // exists to turn the reset code into an email address.
   useEffect(() => {
-    // only run if we have all the query params and we don't know what the
-    // email for this reset link is.
-    if (router.isReady && !email) {
+    // only run this effect if we haven't already validated to code and gotten
+    // an email.
+    if (!email) {
       if (!tenantId || tenantId !== app) {
         // invalid reset link
         setIsInitializing(false);
@@ -45,7 +55,7 @@ export default function ResetPasswordPage() {
         verify();
       }
     }
-  }, [tenantId, code, app, verifyResetPasswordCode, router.isReady, email]);
+  }, [app, verifyResetPasswordCode, email]);
 
   let handleSubmit = async event => {
     event.preventDefault();
@@ -156,7 +166,7 @@ export default function ResetPasswordPage() {
               </form>
             </div>
           ) : (
-            <div>Something wrong</div>
+            <div>Something went wrong!</div>
           )}
         </div>
       </div>
