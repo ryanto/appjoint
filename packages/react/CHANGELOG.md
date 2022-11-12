@@ -1,5 +1,11 @@
 # @appjoint/react
 
+## 0.6.3
+
+### Patch Changes
+
+- [`4332948`](https://github.com/ryanto/appjoint/commit/4332948ce63c3621494dc2bdda28a4a9934c7d72) [#53](https://github.com/ryanto/appjoint/pull/53) Thanks [@ryanto](https://github.com/ryanto)! - Pass through function for verifying a password reset
+
 ## 0.6.2
 
 ### Patch Changes
