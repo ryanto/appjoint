@@ -9,6 +9,7 @@ import {
   setPersistence,
   signInWithEmailAndPassword,
   signOut,
+  verifyPasswordResetCode,
 } from 'firebase/auth';
 import { CreateAccountOptions, SignInOptions } from '../hooks/use-auth';
 
@@ -57,6 +58,14 @@ export let firebaseSendPasswordResetEmail = async (
 ) => {
   let _auth = getAuth(instance);
   return await sendPasswordResetEmail(_auth, email);
+};
+
+export let firebaseVerifyResetPasswordCode = async (
+  instance: FirebaseApp,
+  code: string
+) => {
+  let _auth = getAuth(instance);
+  return await verifyPasswordResetCode(_auth, code);
 };
 
 export let firebaseResetPassword = async (
