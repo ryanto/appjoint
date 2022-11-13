@@ -1,8 +1,8 @@
-import { useApp, useAuth } from "@appjoint/react";
+import { useAuth } from "@appjoint/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-let code, tenantId;
+let code;
 
 // with next's router these query params will be undefined on the first render,
 // but they aren't undefined in reality! we can make things a lot easier for
@@ -12,34 +12,35 @@ if (typeof window !== "undefined") {
   let urlSearchParams = new URLSearchParams(window.location.search);
   let params = Object.fromEntries(urlSearchParams.entries());
   code = params.oobCode;
-  tenantId = params.tenantId;
 }
 
 export default function ResetPasswordPage() {
-  let [isInitializing, setIsInitializing] = useState(true);
-  let { verifyResetPasswordCode, resetPassword, signIn, user } = useAuth();
-  let { app } = useApp();
+  let [isVerifyingCode, setIsVerifyingCode] = useState(true);
+  let {
+    verifyResetPasswordCode,
+    resetPassword,
+    signIn,
+    user,
+    isInitializing
+  } = useAuth();
   let [email, setEmail] = useState();
   let [error, setError] = useState();
   let [isSubmitting, setIsSubmitting] = useState(false);
   let [didReset, setDidReset] = useState(false);
 
-  let isValid = !isInitializing && email;
-  let isInvalid = !isInitializing && !email;
+  let isValid = !isVerifyingCode && email;
+  let isInvalid = !isVerifyingCode && !email;
 
   // we wont know the users email until we verify the reset code. this effect
   // exists to turn the reset code into an email address.
   useEffect(() => {
-    // only run this effect if we haven't already validated to code and gotten
-    // an email.
-    if (!email) {
-      if (!tenantId || tenantId !== app) {
-        // invalid reset link
-        setIsInitializing(false);
+    // only run this effect if we're not initializing auth and we haven't already validated
+    // the code.
+    if (!isInitializing && isVerifyingCode) {
+      if (!code) {
+        setIsVerifyingCode(false);
         setEmail(null);
-      }
-
-      if (tenantId && app && tenantId === app) {
+      } else {
         // lets try to validate the reset link from firebase
         // and get the users email address
         let verify = async () => {
@@ -49,13 +50,13 @@ export default function ResetPasswordPage() {
           } catch (e) {
             setEmail(null);
           }
-          setIsInitializing(false);
+          setIsVerifyingCode(false);
         };
 
         verify();
       }
     }
-  }, [app, verifyResetPasswordCode, email]);
+  }, [verifyResetPasswordCode, isInitializing, isVerifyingCode]);
 
   let handleSubmit = async event => {
     event.preventDefault();
@@ -86,7 +87,7 @@ export default function ResetPasswordPage() {
 
       <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="px-6 py-8 bg-white sm:shadow sm:rounded-lg sm:px-10">
-          {isInitializing ? (
+          {isVerifyingCode ? (
             <div className="text-center">Loading...</div>
           ) : user && didReset ? (
             <div>
