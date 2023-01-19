@@ -1,0 +1,17 @@
+{
+  "name": "test-app-typed-graphql",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "graphql": "^16.6.0"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "2.16.4",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4",
+    "@graphql-codegen/client-preset": "1.2.6"
+  },
+  "scripts": {
+    "codegen": "graphql-codegen --config codegen.ts"
+  }
+}

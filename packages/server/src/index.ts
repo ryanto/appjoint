@@ -1,6 +1,7 @@
 import crossFetch from 'cross-fetch';
 import { GraphQLClient } from 'graphql-request';
 import { DocumentNode } from 'graphql';
+import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { clearCookie, getSignatureFromCookie, sessionCookie } from './cookies';
 
 export type User = {
@@ -31,7 +32,10 @@ let appjointApiServer = isDevelopingLib
   ? 'http://localhost:3001'
   : 'https://appjoint.app/api';
 
-let appInfo = new Map();
+type Query = <T = any, V = Record<string, any>>(
+  query: string | DocumentNode | TypedDocumentNode<T, V>,
+  variables?: V
+) => Promise<T>;
 
 export let app = (app: string, options: Options = {}) => {
   let fetch = options.fetch ?? crossFetch;
@@ -41,8 +45,7 @@ export let app = (app: string, options: Options = {}) => {
     graphqlEndpoint: options.graphqlEndpoint,
   };
 
-  let query = (query: string | DocumentNode, variables?: Record<string, any>) =>
-    execHasura(config, query, variables);
+  let query: Query = (query, variables) => execHasura(config, query, variables);
 
   return {
     getUserFromRequest: (req: RequestLike) => getUserFromRequest(config, req),
@@ -63,10 +66,8 @@ export let app = (app: string, options: Options = {}) => {
         authorization: `Signature ${user.__signature}`,
       };
 
-      let query = (
-        query: string | DocumentNode,
-        variables?: Record<string, any>
-      ) => execHasura(config, query, variables, headers);
+      let query: Query = (query, variables) =>
+        execHasura(config, query, variables, headers);
 
       return {
         query,
@@ -80,10 +81,8 @@ export let app = (app: string, options: Options = {}) => {
           secret ?? `${process.env.APPJOINT_HASURA_GRAPHQL_ADMIN_SECRET}`,
       };
 
-      let query = (
-        query: string | DocumentNode,
-        variables?: Record<string, any>
-      ) => execHasura(config, query, variables, headers);
+      let query: Query = (query, variables) =>
+        execHasura(config, query, variables, headers);
 
       return {
         query,
@@ -251,7 +250,16 @@ let getUserFromHeaders = (config: Config, headers: any) => {
   }
 };
 
-let getTenantInfo = async (config: Config) => {
+type AppInfo = {
+  graphql: {
+    uri: string;
+    client: GraphQLClient;
+  };
+};
+
+let appInfo = new Map<string, AppInfo>();
+
+let getTenantInfo = (config: Config) => {
   if (!appInfo.get(config.tenantId)) {
     let uri =
       config.graphqlEndpoint ??
@@ -270,19 +278,23 @@ let getTenantInfo = async (config: Config) => {
     appInfo.set(config.tenantId, info);
   }
 
-  return appInfo.get(config.tenantId);
+  return appInfo.get(config.tenantId) as AppInfo;
 };
 
-let execHasura = async (
+let execHasura = async <T, V>(
   config: Config,
-  query: string | DocumentNode,
-  variables?: Record<string, any>,
+  query: string | DocumentNode | TypedDocumentNode<T, V>,
+  variables?: Record<string, any> | V,
   headers: Record<string, string> = {}
 ) => {
   let info = await getTenantInfo(config);
-  return await info.graphql.client.request({
+
+  // @ts-ignore
+  let result = await info.graphql.client.request<T, V>({
     document: query,
     variables: variables,
     requestHeaders: headers,
   });
+
+  return result as T;
 };
