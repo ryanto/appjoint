@@ -1,5 +1,11 @@
 # @appjoint/server
 
+## 0.1.5
+
+### Patch Changes
+
+- [`e579479`](https://github.com/ryanto/appjoint/commit/e579479851b23d71f8d26dc56af0becccc64eb0a) [#56](https://github.com/ryanto/appjoint/pull/56) Thanks [@ryanto](https://github.com/ryanto)! - Expose graphql types
+
 ## 0.1.4
 
 ### Patch Changes
