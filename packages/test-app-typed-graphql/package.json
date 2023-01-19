@@ -2,6 +2,7 @@
   "name": "test-app-typed-graphql",
   "version": "1.0.0",
   "type": "module",
+  "private": true,
   "dependencies": {
     "graphql": "^16.6.0"
   },
