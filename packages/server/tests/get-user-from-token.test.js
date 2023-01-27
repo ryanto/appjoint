@@ -17,13 +17,15 @@ describe('getUserFromToken', () => {
       .post('/api/apps/t/user-from-token', { token: 'token' })
       .reply(200, {
         uid: '123',
+        role: 'admin',
         signature: 'xxx',
       });
 
     let user = await appJoint.getUserFromToken('token');
 
-    expect(Object.keys(user)).toEqual(['uid']);
+    expect(Object.keys(user)).toEqual(['uid', 'role']);
     expect(user.uid).toBe('123');
+    expect(user.role).toBe('admin');
     expect(user.__signature).toBe('xxx');
   });
 

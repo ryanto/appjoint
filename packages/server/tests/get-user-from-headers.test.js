@@ -35,6 +35,7 @@ describe('getUserFromHeaders', () => {
         .post('/api/apps/t/verify-signature', { signature: 'xxx' })
         .reply(200, {
           uid: '123',
+          role: 'admin',
         });
 
       let headers = new Headers({
@@ -43,8 +44,9 @@ describe('getUserFromHeaders', () => {
 
       let user = await appJoint.getUserFromHeaders(headers);
 
-      expect(Object.keys(user)).toEqual(['uid']);
+      expect(Object.keys(user)).toEqual(['uid', 'role']);
       expect(user.uid).toBe('123');
+      expect(user.role).toBe('admin');
       expect(user.__signature).toBe('xxx');
     });
 
@@ -81,6 +83,7 @@ describe('getUserFromHeaders', () => {
         })
         .reply(200, {
           uid: '123',
+          role: 'admin',
           signature: 'xxx',
         });
 
@@ -90,8 +93,9 @@ describe('getUserFromHeaders', () => {
 
       let user = await appJoint.getUserFromHeaders(headers);
 
-      expect(Object.keys(user)).toEqual(['uid']);
+      expect(Object.keys(user)).toEqual(['uid', 'role']);
       expect(user.uid).toBe('123');
+      expect(user.role).toBe('admin');
       expect(user.__signature).toBe('xxx');
     });
 

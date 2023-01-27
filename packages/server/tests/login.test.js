@@ -21,14 +21,16 @@ describe('login', () => {
       .reply(200, {
         user: {
           uid: '123',
+          role: 'admin',
           signature: 'signed',
         },
       });
 
     let user = await appJoint.login('ryan@example.com', 'pw');
 
-    expect(Object.keys(user)).toEqual(['uid']);
+    expect(Object.keys(user)).toEqual(['uid', 'role']);
     expect(user.uid).toBe('123');
+    expect(user.role).toBe('admin');
     expect(user.signature).toBeUndefined();
     expect(user.__signature).toBe('signed');
   });

@@ -6,6 +6,7 @@ import { clearCookie, getSignatureFromCookie, sessionCookie } from './cookies';
 
 export type User = {
   uid: string;
+  role: string;
   __signature: string;
 };
 
@@ -108,8 +109,11 @@ let getUserFromToken = async (config: Config, token: string) => {
     }
   );
 
-  let { uid, signature } = (await response.json()) as JSONResponse;
-  let user = { uid } as User;
+  let { uid, role, signature } = (await response.json()) as JSONResponse;
+  let user: User = {
+    uid,
+    role,
+  } as User;
 
   if (uid) {
     Object.defineProperty(user, '__signature', {
@@ -213,8 +217,11 @@ let getUserFromCookie = async (config: Config, cookie: string) => {
     }
   );
 
-  let { uid } = (await response.json()) as JSONResponse;
-  let user = { uid } as User;
+  let { uid, role } = (await response.json()) as JSONResponse;
+  let user = {
+    uid,
+    role,
+  } as User;
 
   if (uid) {
     Object.defineProperty(user, '__signature', {
