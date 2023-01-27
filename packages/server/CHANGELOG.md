@@ -1,5 +1,11 @@
 # @appjoint/server
 
+## 0.1.6
+
+### Patch Changes
+
+- [`5604971`](https://github.com/ryanto/appjoint/commit/5604971d04a30bcec011cc60d0c709b0340fb785) [#58](https://github.com/ryanto/appjoint/pull/58) Thanks [@ryanto](https://github.com/ryanto)! - Add role to User type
+
 ## 0.1.5
 
 ### Patch Changes
