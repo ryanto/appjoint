@@ -8,7 +8,9 @@ export default async function Home() {
 
   return (
     <div>
-      <div>hello! You are user: {user?.uid}</div>
+      <div>
+        hello! You are user: {user?.uid} and your role is {user?.role}
+      </div>
       <div>
         <a href="/api/logout">Logout</a>
       </div>
