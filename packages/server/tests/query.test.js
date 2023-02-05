@@ -41,6 +41,39 @@ describe('query', () => {
     expect(response.posts.map(post => post.id)).toEqual([1, 2]);
   });
 
+  it('should be able to customize headers', async () => {
+    let QUERY = gql`
+      query {
+        posts {
+          id
+        }
+      }
+    `;
+
+    nock('https://appjoint.app')
+      .matchHeader('x-custom', 'yes')
+      .post('/t/v1/graphql', {
+        query: QUERY,
+        variables: {},
+      })
+      .reply(200, {
+        data: {
+          posts: [{ id: 1 }, { id: 2 }],
+        },
+      });
+
+    let response = await appJoint.query(
+      QUERY,
+      {},
+      {
+        'x-custom': 'yes',
+      }
+    );
+
+    expect(response.posts).toHaveLength(2);
+    expect(response.posts.map(post => post.id)).toEqual([1, 2]);
+  });
+
   it('should query as a user', async () => {
     nock('https://appjoint.app')
       .post('/api/apps/t/verify-signature', { signature: 'xxx' })
