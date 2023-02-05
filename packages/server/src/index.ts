@@ -35,7 +35,8 @@ let appjointApiServer = isDevelopingLib
 
 type Query = <T = any, V = Record<string, any>>(
   query: string | DocumentNode | TypedDocumentNode<T, V>,
-  variables?: V
+  variables?: V,
+  headers?: Record<string, string>
 ) => Promise<T>;
 
 export let app = (app: string, options: Options = {}) => {
@@ -46,7 +47,8 @@ export let app = (app: string, options: Options = {}) => {
     graphqlEndpoint: options.graphqlEndpoint,
   };
 
-  let query: Query = (query, variables) => execHasura(config, query, variables);
+  let query: Query = (query, variables, headers) =>
+    execHasura(config, query, variables, headers);
 
   return {
     getUserFromRequest: (req: RequestLike) => getUserFromRequest(config, req),
@@ -63,12 +65,18 @@ export let app = (app: string, options: Options = {}) => {
     mutate: query,
 
     as: (user: User) => {
-      let headers = {
+      let userHeaders = {
         authorization: `Signature ${user.__signature}`,
       };
 
-      let query: Query = (query, variables) =>
-        execHasura(config, query, variables, headers);
+      let query: Query = (query, variables, headers) => {
+        let _headers = {
+          ...headers,
+          ...userHeaders,
+        };
+
+        return execHasura(config, query, variables, _headers);
+      };
 
       return {
         query,
@@ -77,13 +85,19 @@ export let app = (app: string, options: Options = {}) => {
     },
 
     admin: (secret?: string) => {
-      let headers = {
+      let adminHeaders = {
         'x-hasura-admin-secret':
           secret ?? `${process.env.APPJOINT_HASURA_GRAPHQL_ADMIN_SECRET}`,
       };
 
-      let query: Query = (query, variables) =>
-        execHasura(config, query, variables, headers);
+      let query: Query = (query, variables, headers) => {
+        let _headers = {
+          ...headers,
+          ...adminHeaders,
+        };
+
+        return execHasura(config, query, variables, _headers);
+      };
 
       return {
         query,
