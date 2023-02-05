@@ -1,5 +1,11 @@
 # @appjoint/server
 
+## 0.1.7
+
+### Patch Changes
+
+- [`e1d3670`](https://github.com/ryanto/appjoint/commit/e1d3670363cf3b403c10f6353353836283365a98) [#60](https://github.com/ryanto/appjoint/pull/60) Thanks [@ryanto](https://github.com/ryanto)! - Ability to customize headers
+
 ## 0.1.6
 
 ### Patch Changes
