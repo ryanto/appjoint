@@ -22,7 +22,7 @@ export const useBefore: UseBefore = (queue, callback) => {
 
   useEffect(() => {
     return callbacks.register(`before:${queue}`, data => {
-      callbackRef.current(data);
+      return callbackRef.current(data);
     });
   }, [queue, callbacks.register]);
 };
