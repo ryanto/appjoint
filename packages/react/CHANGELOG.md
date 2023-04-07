@@ -1,5 +1,11 @@
 # @appjoint/react
 
+## 0.6.5
+
+### Patch Changes
+
+- [`128ccb3`](https://github.com/ryanto/appjoint/commit/128ccb3ee67a4bfc8cd8d375ef49ed554820c52e) [#64](https://github.com/ryanto/appjoint/pull/64) Thanks [@ryanto](https://github.com/ryanto)! - Add isPending to hint at pending auth changes
+
 ## 0.6.4
 
 ### Patch Changes
