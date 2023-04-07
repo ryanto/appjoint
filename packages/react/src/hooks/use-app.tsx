@@ -21,7 +21,7 @@ import { Callback } from './use-callbacks';
 
 export type AppAuth = {
   user: User;
-  isLoading: boolean;
+  isPending: boolean;
   isInitializing: boolean;
   isAuthenticated: boolean;
 };
@@ -52,7 +52,7 @@ const AppContext = createContext<AppInfo>({
   test: false,
   auth: {
     user: null,
-    isLoading: true,
+    isPending: false,
     isInitializing: true,
     isAuthenticated: false,
   },
@@ -76,7 +76,7 @@ export const AppJointProvider = ({
   children,
 }: ProviderProps) => {
   let [appInstance, setAppInstance] = useState<App>();
-  let [isLoading, setIsLoading] = useState(true);
+  let [isPending, setIsPending] = useState(false);
   let [isInitializing, setIsInitializing] = useState(true);
   let [user, _setUser] = useState<User | null>(null);
   let [callbacks, setCallbacks] = useState<
@@ -107,9 +107,11 @@ export const AppJointProvider = ({
 
   let setAppUser = useCallback(
     async (user: User | null) => {
+      setIsPending(true);
       await runCallbacks('before:setUser', user);
       _setUser(user);
       store.user = user;
+      setIsPending(false);
     },
     [runCallbacks]
   );
@@ -123,7 +125,6 @@ export const AppJointProvider = ({
 
       let timeoutId = setTimeout(async () => {
         await setAppUser(testCurrentUser);
-        setIsLoading(false);
         setIsInitializing(false);
       }, 0);
 
@@ -138,7 +139,6 @@ export const AppJointProvider = ({
       unsubscribe = onAuthStateChanged(_auth, async firebaseUser => {
         let user = firebaseUser?.tenantId === app ? firebaseUser : null;
         await setAppUser(user);
-        setIsLoading(false);
         setIsInitializing(false);
       });
     }
@@ -157,7 +157,7 @@ export const AppJointProvider = ({
     auth: {
       user,
       isAuthenticated,
-      isLoading,
+      isPending,
       isInitializing,
     },
     callbacks: {
