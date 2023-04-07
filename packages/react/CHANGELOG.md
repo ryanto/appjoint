@@ -1,5 +1,11 @@
 # @appjoint/react
 
+## 0.6.4
+
+### Patch Changes
+
+- [`5b9a895`](https://github.com/ryanto/appjoint/commit/5b9a895891a6ee67acef62af739f6fb7c50be633) [#62](https://github.com/ryanto/appjoint/pull/62) Thanks [@ryanto](https://github.com/ryanto)! - Allow callbacks to be async
+
 ## 0.6.3
 
 ### Patch Changes
