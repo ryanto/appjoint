@@ -25,6 +25,7 @@ let AuthenticatedApp = ({ children }) => {
     '/sign-in',
     '/create-account',
     '/create-account-form',
+    '/pending-create-account',
     '/auth-token',
   ];
   let isOnPublicPage = publicUrls.includes(router.asPath);

@@ -1,5 +1,9 @@
 import { CreateAccountOptions, SignInOptions } from '../hooks/use-auth';
-import { addBridgedUserAccount, findBridgedUserAccount } from '../test-support';
+import {
+  addBridgedUserAccount,
+  findBridgedUserAccount,
+  testCurrentUser,
+} from '../test-support';
 
 export let testSignIn = async (
   instance: TestApp,
@@ -31,19 +35,41 @@ export type TestUser = {
   getIdToken: () => Promise<string>;
 };
 
-type UserSetter = (user: TestUser | null) => Promise<void>;
+export type TestApp = ReturnType<typeof _createTestApp>;
 
-export type TestApp = ReturnType<typeof createTestApp>;
+let _app: TestApp | null = null;
 
-export let createTestApp = (setAppUser: UserSetter) => {
+export let createTestApp = () => {
+  if (!_app) {
+    _app = _createTestApp();
+  }
+
+  return _app;
+};
+
+function _createTestApp() {
+  let currentUser = testCurrentUser;
+  let updateUser = (_user: TestUser | null) => {};
+
+  setTimeout(() => {
+    updateUser(currentUser);
+  }, 0);
+
   return {
+    onUserChange: (callback: (user: TestUser | null) => void) => {
+      updateUser = callback;
+      return () => {
+        updateUser = () => {};
+      };
+    },
+
     signInTestUser: async (
       email: string,
       password: string
     ): Promise<TestUser> => {
       let user = findBridgedUserAccount(email, password);
       if (user) {
-        setAppUser(user);
+        updateUser(user);
         return Promise.resolve(user);
       } else {
         throw new Error(
@@ -59,7 +85,7 @@ export let createTestApp = (setAppUser: UserSetter) => {
 
       if (!user) {
         let user = addBridgedUserAccount(email, password);
-        setAppUser(user);
+        updateUser(user);
         return Promise.resolve(user);
       } else {
         let error: Error & { code?: string } = new Error(
@@ -70,8 +96,8 @@ export let createTestApp = (setAppUser: UserSetter) => {
       }
     },
     signOutTestUser: async (): Promise<void> => {
-      setAppUser(null);
+      updateUser(null);
       return Promise.resolve();
     },
   };
-};
+}

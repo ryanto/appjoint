@@ -13,7 +13,7 @@ import {
   onAuthStateChanged,
   User as FirebaseUser,
 } from 'firebase/auth';
-import { isTest, testCurrentUser } from '../test-support';
+import { isTest } from '../test-support';
 import { Plugin, Plugins } from '../plugin-support';
 import { createFirebaseApp } from '../apps/firebase';
 import { createTestApp, TestApp, TestUser } from '../apps/test';
@@ -121,14 +121,12 @@ export const AppJointProvider = ({
     let unsubscribe: () => void;
 
     if (test) {
-      _app = createTestApp(setAppUser);
+      _app = createTestApp();
 
-      let timeoutId = setTimeout(async () => {
-        await setAppUser(testCurrentUser);
+      unsubscribe = _app.onUserChange(async user => {
+        await setAppUser(user);
         setIsInitializing(false);
-      }, 0);
-
-      unsubscribe = () => clearTimeout(timeoutId);
+      });
     } else {
       _app = createFirebaseApp(app);
 
