@@ -58,6 +58,8 @@ export let app = (app: string, options: Options = {}) => {
     login: (email: string, password: string) => login(config, email, password),
     createAccount: ({ email, password }: { email: string; password: string }) =>
       createAccount(config, { email, password }),
+    verifyPasswordResetCode: (code: string) =>
+      verifyPasswordResetCode(config, code),
     sessionCookie: (user: User) => sessionCookie(app, user),
     clearCookie: () => clearCookie(app),
 
@@ -107,7 +109,7 @@ export let app = (app: string, options: Options = {}) => {
   };
 };
 
-type JSONResponse = Record<string, any>;
+type JSONResponse<T = Record<string, any>> = T;
 
 let getUserFromToken = async (config: Config, token: string) => {
   let response = await config.fetch(
@@ -209,6 +211,33 @@ let createAccount = async (
   }
 
   return user as User;
+};
+
+let verifyPasswordResetCode = async (config: Config, code: string) => {
+  let response = await config.fetch(
+    `${appjointApiServer}/apps/${config.tenantId}/verify-password-reset-code`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        code,
+      }),
+    }
+  );
+
+  let json = (await response.json()) as JSONResponse<
+    | {
+        error: string;
+        email: null;
+      }
+    | {
+        email: string;
+      }
+  >;
+
+  return json.email;
 };
 
 let getUserFromCookie = async (config: Config, cookie: string) => {

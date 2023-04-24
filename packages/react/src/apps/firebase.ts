@@ -60,7 +60,7 @@ export let firebaseSendPasswordResetEmail = async (
   return await sendPasswordResetEmail(_auth, email);
 };
 
-export let firebaseVerifyResetPasswordCode = async (
+export let firebaseVerifyPasswordResetCode = async (
   instance: FirebaseApp,
   code: string
 ) => {

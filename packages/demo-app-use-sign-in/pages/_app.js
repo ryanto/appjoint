@@ -20,7 +20,12 @@ function InnerApp({ children }) {
   let { asPath } = useRouter();
   let onPage = asPath.match(/^[^?]+/)[0];
 
-  let publicRoutes = ["/sign-up", "/forgot-password", "/reset-password"];
+  let publicRoutes = [
+    "/sign-up",
+    "/forgot-password",
+    "/reset-password",
+    "/reset-password-csr"
+  ];
 
   let isPublicPage = publicRoutes.includes(onPage);
 

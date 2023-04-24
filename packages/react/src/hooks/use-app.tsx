@@ -31,7 +31,7 @@ type AppCallbacks = {
   register: (queue: string, callback: Callback) => void;
 };
 
-type App = FirebaseApp | TestApp | undefined;
+export type App = FirebaseApp | TestApp | undefined;
 export type User = FirebaseUser | TestUser | null;
 
 type AppInfo = {

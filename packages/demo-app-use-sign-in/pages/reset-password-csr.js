@@ -1,14 +1,57 @@
 import { useAuth, usePasswordReset } from "@appjoint/react";
-import { app } from "@appjoint/server";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function ResetPasswordPage({ code, email }) {
-  let { signIn, user } = useAuth();
-  let { resetPassword } = usePasswordReset();
+let code;
+
+// with next's router these query params will be undefined on the first render,
+// but they aren't undefined in reality! we can make things a lot easier for
+// ourselves by reading these values off the window object before render and
+// having our react component close over the values.
+if (typeof window !== "undefined") {
+  let urlSearchParams = new URLSearchParams(window.location.search);
+  let params = Object.fromEntries(urlSearchParams.entries());
+  code = params.code;
+}
+
+export default function ResetPasswordPage() {
+  let [isVerifyingCode, setIsVerifyingCode] = useState(true);
+  let { signIn, user, isInitializing } = useAuth();
+  let { verifyPasswordResetCode, resetPassword } = usePasswordReset();
+  let [email, setEmail] = useState();
   let [error, setError] = useState();
   let [isSubmitting, setIsSubmitting] = useState(false);
   let [didReset, setDidReset] = useState(false);
+
+  let isValid = !isVerifyingCode && email;
+  let isInvalid = !isVerifyingCode && !email;
+
+  // we wont know the users email until we verify the reset code. this effect
+  // exists to turn the reset code into an email address.
+  useEffect(() => {
+    // only run this effect if we're not initializing auth and we haven't already validated
+    // the code.
+    if (!isInitializing && isVerifyingCode) {
+      if (!code) {
+        setIsVerifyingCode(false);
+        setEmail(null);
+      } else {
+        // lets try to validate the reset link from firebase
+        // and get the users email address
+        let verify = async () => {
+          try {
+            let email = await verifyPasswordResetCode(code);
+            setEmail(email);
+          } catch (e) {
+            setEmail(null);
+          }
+          setIsVerifyingCode(false);
+        };
+
+        verify();
+      }
+    }
+  }, [isInitializing, isVerifyingCode, verifyPasswordResetCode]);
 
   let handleSubmit = async event => {
     event.preventDefault();
@@ -39,7 +82,9 @@ export default function ResetPasswordPage({ code, email }) {
 
       <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="px-6 py-8 bg-white sm:shadow sm:rounded-lg sm:px-10">
-          {user && didReset ? (
+          {isVerifyingCode ? (
+            <div className="text-center">Loading...</div>
+          ) : user && didReset ? (
             <div>
               Password reset successful! You are now logged into your account.
               Click here to access the{" "}
@@ -48,9 +93,9 @@ export default function ResetPasswordPage({ code, email }) {
               </Link>
               .
             </div>
-          ) : !email ? (
+          ) : isInvalid ? (
             <div className="text-center">Error: Invalid reset link</div>
-          ) : (
+          ) : isValid ? (
             <div>
               {error && (
                 <div className="px-3 py-4 mb-8 text-xs text-white bg-red-500 rounded-md shadow">
@@ -116,23 +161,11 @@ export default function ResetPasswordPage({ code, email }) {
                 </div>
               </form>
             </div>
+          ) : (
+            <div>Something went wrong!</div>
           )}
         </div>
       </div>
     </div>
   );
-}
-
-export async function getServerSideProps({ query }) {
-  let appJoint = await app("Demo-app-hpdwq");
-
-  let code = query.code;
-  let email = await appJoint.verifyPasswordResetCode(code);
-
-  return {
-    props: {
-      code,
-      email
-    }
-  };
 }
