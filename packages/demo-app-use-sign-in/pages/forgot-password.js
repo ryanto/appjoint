@@ -1,8 +1,8 @@
-import { useAuth } from "@appjoint/react";
+import { usePasswordReset } from "@appjoint/react";
 import { useState } from "react";
 
 export default function ForgotPasswordPage() {
-  let { sendPasswordResetEmail } = useAuth();
+  let { sendPasswordResetEmail } = usePasswordReset();
   let [error, setError] = useState();
   let [isSubmitting, setIsSubmitting] = useState(false);
   let [didSend, setDidSend] = useState(false);
@@ -15,7 +15,10 @@ export default function ForgotPasswordPage() {
     let email = form.email.value;
 
     try {
-      await sendPasswordResetEmail(email);
+      await sendPasswordResetEmail(
+        email,
+        "http://localhost:3000/reset-password"
+      );
       setDidSend(true);
     } catch (e) {
       setError(e);

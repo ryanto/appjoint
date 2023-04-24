@@ -6,6 +6,7 @@ export { TestUserAccount, TestCurrentUserAccount } from './test-support';
 // code
 export { isTest } from './test-support';
 export { useAuth } from './hooks/use-auth';
+export { usePasswordReset } from './hooks/use-password-reset';
 export { useBefore } from './hooks/use-callbacks';
 export { useLoginForm } from './hooks/use-login-form';
 export { useCreateAccountForm } from './hooks/use-create-account-form';

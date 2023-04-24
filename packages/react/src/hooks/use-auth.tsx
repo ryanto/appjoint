@@ -5,9 +5,6 @@ import {
   firebaseCreateAccount,
   firebaseSignIn,
   firebaseSignOut,
-  firebaseSendPasswordResetEmail,
-  firebaseResetPassword,
-  firebaseVerifyResetPasswordCode,
 } from '../apps/firebase';
 import {
   TestApp,
@@ -42,12 +39,6 @@ export type CreateAccount<T = User> = (
 
 type SignOut = () => Promise<void>;
 
-type SendPasswordResetEmail = (email: string) => Promise<void>;
-
-type VerifyResetPasswordCode = (code: string) => Promise<string>;
-
-type ResetPassword = (code: string, newPassword: string) => Promise<void>;
-
 export const useAuth = () => {
   let app = useApp();
   let { instance, auth, test } = app;
@@ -76,40 +67,10 @@ export const useAuth = () => {
       : firebaseSignOut(instance as FirebaseApp);
   }, [instance, test]);
 
-  let sendPasswordResetEmail: SendPasswordResetEmail = useCallback(
-    (...args) => {
-      return test
-        ? Promise.reject('Not implemented yet.')
-        : firebaseSendPasswordResetEmail(instance as FirebaseApp, ...args);
-    },
-    [instance, test]
-  );
-
-  let verifyResetPasswordCode: VerifyResetPasswordCode = useCallback(
-    (...args) => {
-      return test
-        ? Promise.reject('Not implemented yet.')
-        : firebaseVerifyResetPasswordCode(instance as FirebaseApp, ...args);
-    },
-    [instance, test]
-  );
-
-  let resetPassword: ResetPassword = useCallback(
-    (...args) => {
-      return test
-        ? Promise.reject('Not implemented yet.')
-        : firebaseResetPassword(instance as FirebaseApp, ...args);
-    },
-    [instance, test]
-  );
-
   return {
     ...auth,
     createAccount,
     signIn,
     signOut,
-    sendPasswordResetEmail,
-    verifyResetPasswordCode,
-    resetPassword,
   };
 };
