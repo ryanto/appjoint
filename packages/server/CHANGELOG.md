@@ -1,5 +1,11 @@
 # @appjoint/server
 
+## 0.1.8
+
+### Patch Changes
+
+- [`70798ad`](https://github.com/ryanto/appjoint/commit/70798ad4abb30b890606770a71467c2cef00971d) [#66](https://github.com/ryanto/appjoint/pull/66) Thanks [@ryanto](https://github.com/ryanto)! - New APIs for resetting passwords
+
 ## 0.1.7
 
 ### Patch Changes
